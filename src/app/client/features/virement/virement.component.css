@@ -1,0 +1,405 @@
+.virement-container {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  padding: 20px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.tabs-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.tab {
+  padding: 12px 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.tab:hover {
+  background-color: #e9ecef;
+}
+
+.tab.active {
+  background-color: white;
+  box-shadow: 0 -3px 8px rgba(0, 0, 0, 0.05);
+  border-bottom: 3px solid #6b4ce6;
+}
+
+.section-card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+h2 {
+  margin-bottom: 20px;
+  color: #333;
+  font-weight: 600;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+h3 {
+  margin-bottom: 15px;
+}
+
+/* Formulaires */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #6b4ce6;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(107, 76, 230, 0.2);
+}
+
+.amount-input {
+  position: relative;
+}
+
+.amount-input input {
+  padding-right: 30px;
+}
+
+.currency {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+}
+
+.beneficiary-selector {
+  display: flex;
+  gap: 10px;
+}
+
+.beneficiary-selector select {
+  flex: 1;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkbox-group input {
+  width: auto;
+}
+
+/* Boutons */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-primary {
+  background-color: #6b4ce6;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #5a3fd1;
+}
+
+.btn-primary:disabled {
+  background-color: #c6c6c6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: #f3f3f3;
+  color: #333;
+}
+
+.btn-secondary:hover {
+  background-color: #e6e6e6;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 5px;
+  transition: color 0.2s;
+}
+
+.btn-icon:hover {
+  color: #6b4ce6;
+}
+
+.btn-icon .active {
+  color: #ffc107;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 25px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Liste des bénéficiaires */
+.beneficiaries-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.beneficiary-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 3px solid #6b4ce6;
+}
+
+.beneficiary-name {
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.favorite-icon {
+  color: #ffc107;
+}
+
+.beneficiary-account {
+  font-family: monospace;
+  margin-top: 5px;
+  color: #666;
+}
+
+.beneficiary-bank {
+  color: #888;
+  font-size: 14px;
+  margin-top: 3px;
+}
+
+.beneficiary-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.no-beneficiaries {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+/* OTP */
+.otp-help {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+}
+
+.otp-help a {
+  color: #6b4ce6;
+  text-decoration: none;
+}
+
+.info-text {
+  margin-bottom: 5px;
+}
+
+/* Tableau des transactions */
+.transaction-table-container {
+  overflow-x: auto;
+}
+
+.transaction-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.transaction-table th,
+.transaction-table td {
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.transaction-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #eee;
+}
+
+.transaction-table tr {
+  border-bottom: 1px solid #eee;
+}
+
+.transaction-table tr:hover {
+  background-color: #f8f9fa;
+}
+
+.description {
+  max-width: 200px;
+}
+
+.amount {
+  font-weight: 500;
+}
+
+.amount.negative {
+  color: #dc3545;
+}
+
+.badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  color: white;
+  font-size: 0.85rem;
+  text-transform: capitalize;
+  display: inline-block;
+}
+
+.badge.validee {
+  background-color: #4caf50;
+}
+
+.badge.en-attente {
+  background-color: #ff9800;
+}
+
+.badge.echouée {
+  background-color: red;
+}
+
+.badge.annulee {
+  background-color: grey;
+}
+
+.no-transfers {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .beneficiary-selector {
+    flex-direction: column;
+  }
+
+  .tabs-container {
+    overflow-x: auto;
+    padding-bottom: 5px;
+  }
+
+  .tab {
+    white-space: nowrap;
+  }
+}
+
+/* Contrôles de pagination */
+.pagination-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding: 10px 0;
+  border-top: 1px solid #eee;
+}
+
+.pagination-info {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.pagination-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.pagination-btn {
+  padding: 5px 12px;
+  background-color: #6b4ce6;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.pagination-btn:hover:not([disabled]) {
+  background-color: #5a3bd4;
+}
+
+.pagination-btn[disabled] {
+  background-color: #ccc;
+  cursor: not-allowed;
+}

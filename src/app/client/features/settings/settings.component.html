@@ -1,0 +1,140 @@
+<div class="client-settings">
+  <!-- Loading State -->
+  <div *ngIf="!client" class="loading-message" role="status">Chargement des données...</div>
+
+  <!-- Main Content -->
+  <div *ngIf="client">
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="avatar-container">
+        <div class="avatar-placeholder">
+          {{ (client.firstName || '').charAt(0) }}{{ (client.lastName || '').charAt(0) }}
+        </div>
+      </div>
+
+      <div class="profile-info">
+        <div class="profile-name">{{ client.firstName || 'N/A' }} {{ client.lastName || 'N/A' }}</div>
+        <div class="profile-id">ID: {{ client.id }} | CIN: {{ client.CIN || 'N/A' }}</div>
+
+        <div class="profile-quick-stats">
+          <div class="stat-item">
+            <div class="stat-label">Nombre de comptes</div>
+            <div class="stat-value">{{ comptes.length }}</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Client depuis</div>
+            <div class="stat-value">{{ client.dateCreated ? (client.dateCreated | date:'MMMM yyyy') : 'N/A' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Container -->
+    <div class="settings-container">
+      <!-- Sidebar : Identité -->
+      <div class="settings-sidebar">
+        <div class="settings-group">
+          <h4>Informations d'identité</h4>
+
+          <div class="form-group readonly">
+            <label>ID</label>
+            <input type="text" [value]="client.id" readonly>
+          </div>
+
+          <div class="form-group readonly">
+            <label>CIN</label>
+            <input type="text" [value]="client.CIN || 'N/A'" readonly>
+          </div>
+
+          <div class="form-group readonly">
+            <label>Prénom</label>
+            <input type="text" [value]="client.firstName || 'N/A'" readonly>
+          </div>
+
+          <div class="form-group readonly">
+            <label>Nom</label>
+            <input type="text" [value]="client.lastName || 'N/A'" readonly>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Main : Coordonnées et Notifications -->
+      <div class="settings-main">
+        <div class="settings-group">
+          <h4>Coordonnées</h4>
+
+          <div class="form-group readonly">
+            <label>Email</label>
+            <input type="email" [value]="client.email || 'N/A'" readonly>
+          </div>
+
+          <div class="form-group readonly">
+            <label>Téléphone</label>
+            <input type="tel" [value]="client.phone || 'N/A'" readonly>
+          </div>
+
+          <div class="form-group readonly">
+            <label>Adresse</label>
+            <input [value]="client.address || 'N/A'" readonly>
+          </div>
+        </div>
+
+        <!-- New Security Section -->
+        <div class="settings-group">
+          <h4>Sécurité</h4>
+
+          <!-- Password Modification -->
+          <div class="form-group">
+            <label>Modifier le mot de passe</label>
+            <button class="btn btn-primary" (click)="requestPasswordReset()" [disabled]="passwordLoading">
+              {{ passwordLoading ? 'Envoi en cours...' : 'Modifier le mot de passe' }}
+            </button>
+            <div *ngIf="passwordMessage" class="message" [ngClass]="{'success': passwordSuccess, 'error': !passwordSuccess}">
+              {{ passwordMessage }}
+            </div>
+          </div>
+
+          <!-- Two-Factor Authentication -->
+          <div class="form-group">
+            <label>Authentification à deux facteurs (2FA)</label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio"
+                       name="twoFactor"
+                       [value]="true"
+                       [(ngModel)]="twoFactorEnabled"
+                       (click)="onRadioClick(true)"
+                       [disabled]="twoFactorLoading">
+                Activée
+              </label>
+              <label class="radio-label">
+                <input type="radio"
+                       name="twoFactor"
+                       [value]="false"
+                       [(ngModel)]="twoFactorEnabled"
+                       (click)="onRadioClick(false)"
+                       [disabled]="twoFactorLoading">
+                Désactivée
+              </label>
+            </div>
+            <div *ngIf="twoFactorMessage" class="message" [ngClass]="{'success': twoFactorSuccess, 'error': !twoFactorSuccess}">
+              {{ twoFactorMessage }}
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- compte -->
+      <div class="settings-group setting-compte" *ngIf="comptes.length > 0">
+        <h4>Liste des comptes ({{ comptes.length }})</h4>
+        <ul class="simple-account-list">
+          <li *ngFor="let compte of comptes">
+            Numéro : {{ compte.rib }}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

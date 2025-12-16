@@ -1,0 +1,57 @@
+<div class="nav-items" [class.open]="isMobileMenuOpen" [class.compact-mode]="isCompactMode">
+  <div class="header-section">
+    <button class="toggle-button" (click)="toggleSideNav()">
+      <fa-icon [icon]="faBars"></fa-icon>
+    </button>
+    <div class="brand">
+      <h1>E-Bank Admin</h1>
+    </div>
+  </div>
+
+  <div class="nav-item" routerLink="/admin/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+    <fa-icon [icon]="faChartLine"></fa-icon>
+    <span>Tableau de bord</span>
+  </div>
+
+  <div class="nav-item" routerLink="/admin/agents" routerLinkActive="active">
+    <fa-icon [icon]="faUsers"></fa-icon>
+    <span>Gestion Agents</span>
+  </div>
+
+  <div class="nav-item" routerLink="/admin/currencies" routerLinkActive="active">
+    <fa-icon [icon]="faMoneyBillWave"></fa-icon>
+    <span>Gestion Devises</span>
+  </div>
+
+  <div class="nav-item" routerLink="/admin/transactions" routerLinkActive="active">
+    <fa-icon [icon]="faExchangeAlt"></fa-icon>
+    <span>Vérification Transactions</span>
+  </div>
+
+  <div class="nav-item" routerLink="/admin/global-settings" routerLinkActive="active">
+    <fa-icon [icon]="faCog"></fa-icon>
+    <span>Paramètres Globaux</span>
+  </div>
+
+  <!-- Item de déconnexion -->
+  <div class="nav-item logout" (click)="openLogoutConfirm()">
+    <fa-icon [icon]="faSignOutAlt"></fa-icon>
+    <span>Déconnexion</span>
+  </div>
+
+  <!-- Modal de confirmation de déconnexion -->
+  <div *ngIf="showLogoutConfirm" class="logout-confirm-overlay">
+    <div class="logout-confirm-modal">
+      <div class="logout-confirm-header">
+        <h3>Confirmation</h3>
+      </div>
+      <div class="logout-confirm-body">
+        <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
+      </div>
+      <div class="logout-confirm-footer">
+        <button class="cancel-btn" (click)="cancelLogout()">Annuler</button>
+        <button class="confirm-btn" (click)="confirmLogout()">Déconnecter</button>
+      </div>
+    </div>
+  </div>
+</div>

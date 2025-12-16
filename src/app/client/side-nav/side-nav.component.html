@@ -1,0 +1,73 @@
+<div class="nav-items" [class.open]="isMobileMenuOpen" [class.compact-mode]="isCompactMode">
+  <div class="header-section">
+    <!--      <button class="toggle-button" (click)="toggleSideNav()" aria-label="Toggle sidenav">-->
+    <!--        <fa-icon [icon]="faBars"></fa-icon>-->
+    <!--      </button>-->
+
+    <button class="toggle-button" (click)="toggleSideNav()" >
+      <fa-icon [icon]="faBars"></fa-icon>
+    </button>
+
+    <div class="brand">
+      <h1>E-Bank</h1>
+    </div>
+  </div>
+
+  <div class="nav-item" routerLink="/client" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+    <fa-icon [icon]="faTachometerAlt"></fa-icon>
+    <span>Dashboard</span>
+  </div>
+  <div class="nav-item" routerLink="/client/account" routerLinkActive="active">
+    <fa-icon [icon]="faUniversity"></fa-icon>
+    <span>Mes Comptes</span>
+  </div>
+  <div class="nav-item" routerLink="/client/virement" routerLinkActive="active">
+    <fa-icon [icon]="faExchangeAlt"></fa-icon>
+    <span>Virements</span>
+  </div>
+  <div class="nav-item" routerLink="/client/recharges" routerLinkActive="active">
+    <fa-icon [icon]="faStore"></fa-icon>
+    <span>Recharges</span>
+  </div>
+  <div class="nav-item" routerLink="/client/crypto" routerLinkActive="active">
+    <fa-icon [icon]="faWallet"></fa-icon>
+    <span>Portefeuille Crypto</span>
+  </div>
+  <div class="nav-item" routerLink="/client/budget" routerLinkActive="active">
+    <fa-icon [icon]="faBarChart"></fa-icon>
+    <span>Budget & Dépenses</span>
+  </div>
+  <div class="nav-item" routerLink="/client/parrainage" routerLinkActive="active">
+    <fa-icon [icon]="faUserFriends"></fa-icon>
+    <span>Parrainage</span>
+  </div>
+  <div class="nav-item" routerLink="/client/assistant" routerLinkActive="active">
+    <fa-icon [icon]="faBoxOpen"></fa-icon>
+    <span>Assistant</span>
+  </div>
+  <div class="nav-item" routerLink="/client/settings" routerLinkActive="active">
+    <fa-icon [icon]="faUserCog"></fa-icon>
+    <span>Paramètres du Compte</span>
+  </div>
+  <!-- Item de déconnexion -->
+  <div class="nav-item" (click)="openLogoutConfirm()">
+    <fa-icon [icon]="faSignOutAlt"></fa-icon>
+    <span class="nav-text">Déconnexion</span>
+  </div>
+
+  <!-- Modal de confirmation de déconnexion -->
+    <div *ngIf="showLogoutConfirm" class="logout-confirm-overlay">
+      <div class="logout-confirm-modal">
+        <div class="logout-confirm-header">
+          <h3>Confirmation</h3>
+        </div>
+        <div class="logout-confirm-body">
+          <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
+        </div>
+        <div class="logout-confirm-footer">
+          <button class="cancel-btn" (click)="cancelLogout()">Annuler</button>
+          <button class="confirm-btn" (click)="confirmLogout()">Déconnecter</button>
+        </div>
+      </div>
+  </div>
+</div>

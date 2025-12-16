@@ -1,0 +1,553 @@
+.budget-container {
+  padding: 1rem;
+  font-family: 'Roboto', sans-serif;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.monthly-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.alerts-panel {
+  background-color: #fff3cd;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.warning-icon {
+  color: #ffc107;
+}
+
+.budget-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.category-item {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+  height: 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  border-radius: 4px;
+}
+
+.over-budget {
+  background-color: #dc3545 !important;
+}
+
+.expense-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #dee2e6;
+  text-align: left;
+}
+
+.empty-state {
+  text-align: center;
+  color: #6c757d;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #0069d9;
+}
+
+/* Dans budget.component.css */
+
+.category-management {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  margin-top: 20px;
+}
+
+.category-header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.category-form {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.color-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.color-option {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.2s;
+}
+
+.color-option:hover {
+  transform: scale(1.1);
+}
+
+.color-option.selected {
+  border-color: #333;
+  transform: scale(1.1);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.categories-management-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.category-item-management {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.category-item-management:hover {
+  background-color: #f1f1f1;
+}
+
+.category-color-indicator {
+  width: 15px;
+  height: 40px;
+  border-radius: 3px;
+  margin-right: 15px;
+}
+
+.category-details {
+  flex: 1;
+}
+
+.category-details h4 {
+  margin: 0;
+}
+
+.category-details p {
+  margin: 5px 0 0;
+  color: #666;
+}
+
+.category-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 5px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.btn-icon:hover {
+  background-color: #e0e0e0;
+}
+
+.empty-state {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+/* Mise en page pour graphique et formulaire d'ajout de dépense côte à côte */
+.expense-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.expense-chart, .add-expense-panel {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Style pour le modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  animation: modal-fade 0.3s ease-in-out;
+}
+
+@keyframes modal-fade {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-header h4 {
+  margin: 0;
+  font-weight: 500;
+}
+
+.close-modal {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.modal-body {
+  padding: 1rem;
+}
+
+.modal-footer {
+  padding: 1rem;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-outline {
+  background: none;
+  border: 1px solid #007bff;
+  color: #007bff;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Style pour la grille de catégories et gestion de catégories côte à côte */
+.categories-management-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+/* Style commun pour tous les panneaux */
+.panel {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Supprimer le margin-top pour la section category-management */
+.category-management {
+  margin-top: 0;
+}
+
+/* Remplacer .expense-container par .charts-container */
+.charts-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Bouton flottant pour ajouter une dépense */
+.floating-add-button {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #007bff;
+  color: white;
+  font-size: 2rem;
+  border: none;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, background-color 0.2s;
+  z-index: 100;
+}
+
+.floating-add-button:hover {
+  transform: scale(1.1);
+  background-color: #0069d9;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .categories-management-grid,
+  .charts-container {
+    grid-template-columns: 1fr;
+  }
+
+  .budget-categories,
+  .category-management,
+  .expense-chart,
+  .pie-chart {
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .expense-form {
+    grid-template-columns: 1fr;
+  }
+
+  table {
+    font-size: 0.9rem;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .floating-add-button {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 50px;
+    height: 50px;
+  }
+}
+
+/* Amélioration de la responsivité des tableaux */
+@media (max-width: 768px) {
+  .recent-expenses {
+    padding: 0.75rem;
+  }
+
+  .recent-expenses table {
+    min-width: 100%;
+  }
+
+  .recent-expenses th,
+  .recent-expenses td {
+    padding: 8px 5px;
+    font-size: 0.85rem;
+  }
+
+  /* Conteneur avec défilement horizontal */
+  .recent-expenses {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Pour une meilleure expérience sur iOS */
+  }
+}
+
+/* Pour très petits écrans */
+@media (max-width: 480px) {
+  .recent-expenses th:nth-child(3),
+  .recent-expenses td:nth-child(3) {
+    display: none; /* Cache la colonne "Catégorie" sur très petits écrans */
+  }
+
+  .recent-expenses th,
+  .recent-expenses td {
+    padding: 6px 4px;
+    font-size: 0.8rem;
+  }
+
+  .recent-expenses h3 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Amélioration de la taille des graphiques */
+.expense-chart, .pie-chart {
+  max-height: 400px;
+  position: relative;
+}
+
+canvas {
+  max-height: 350px;
+}
+
+/* Ajustements responsive pour les graphiques */
+@media (max-width: 1024px) {
+  .expense-chart, .pie-chart {
+    max-height: 350px;
+  }
+
+  canvas {
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .expense-chart, .pie-chart {
+    max-height: 300px;
+    padding-bottom: 10px;
+  }
+
+  canvas {
+    max-height: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .expense-chart, .pie-chart {
+    max-height: 250px;
+  }
+
+  canvas {
+    max-height: 200px;
+  }
+}
+
+/* Amélioration de la taille des graphiques */
+.expense-chart, .pie-chart {
+  max-height: 400px;
+  position: relative;
+}
+
+canvas {
+  max-height: 350px;
+}
+
+/* Ajustements responsive pour les graphiques */
+@media (max-width: 1024px) {
+  .expense-chart, .pie-chart {
+    max-height: 350px;
+  }
+
+  canvas {
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .expense-chart, .pie-chart {
+    max-height: 300px;
+    padding-bottom: 10px;
+  }
+
+  canvas {
+    max-height: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .expense-chart, .pie-chart {
+    max-height: 250px;
+  }
+
+  canvas {
+    max-height: 200px;
+  }
+}

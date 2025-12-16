@@ -1,0 +1,504 @@
+.crypto-container {
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.total-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #0056b3;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #dee2e6;
+  margin-bottom: 20px;
+}
+
+.tab {
+  padding: 10px 20px;
+  cursor: pointer;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+}
+
+.tab:hover {
+  color: #0056b3;
+}
+
+.tab.active {
+  color: #0056b3;
+  border-bottom: 2px solid #0056b3;
+}
+
+.tab-content {
+  min-height: 300px;
+}
+
+/* Balance styles */
+.balances-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.balance-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.balance-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.crypto-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.crypto-info img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.symbol {
+  color: #6c757d;
+  font-size: 0.9em;
+}
+
+.balance-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.amount {
+  font-weight: 500;
+}
+
+.value {
+  color: #495057;
+}
+
+/* Market styles */
+.market-view {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 20px;
+}
+
+.crypto-list {
+  max-height: 600px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.crypto-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background-color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.crypto-item:hover, .crypto-item.selected {
+  background-color: #e9ecef;
+}
+
+.price-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.price {
+  font-weight: 500;
+}
+
+.change {
+  font-size: 0.9em;
+}
+
+.positive {
+  color: #28a745;
+}
+
+.negative {
+  color: #dc3545;
+}
+
+/* Crypto détails */
+.crypto-detail {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.crypto-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.crypto-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.crypto-title img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.crypto-price {
+  text-align: right;
+}
+
+.current-price {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+/* Graphique */
+.price-chart {
+  margin-bottom: 20px;
+}
+
+.timeframe-selector {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 15px;
+  gap: 10px;
+}
+
+.timeframe-selector button {
+  padding: 5px 12px;
+  background-color: #f1f3f5;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.timeframe-selector button.active {
+  background-color: #0056b3;
+  color: white;
+}
+
+/* Formulaire de transaction */
+.transaction-form {
+  margin-top: 20px;
+  border-top: 1px solid #dee2e6;
+  padding-top: 20px;
+}
+
+.transaction-type-selector {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.transaction-type-selector button {
+  padding: 8px 20px;
+  border: 1px solid #dee2e6;
+  background-color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-grow: 1;
+}
+
+.transaction-type-selector button.active {
+  background-color: #0056b3;
+  color: white;
+  border-color: #0056b3;
+}
+
+.transaction-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-group label {
+  font-weight: 500;
+  font-size: 14px;
+  color: #495057;
+}
+
+.form-group input, .form-group select {
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.btn-primary {
+  padding: 12px;
+  background-color: #0056b3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+.btn-primary:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Transactions */
+.transactions-list {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+}
+
+th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.buy {
+  color: #28a745;
+}
+
+.sell {
+  color: #dc3545;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #6c757d;
+}
+
+.execute-transaction {
+  width: 100%;
+}
+
+/* Styles responsifs pour les mobiles et petits écrans */
+@media only screen and (max-width: 768px) {
+  /* Mise en page générale */
+  .crypto-container {
+    padding: 10px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  /* Onglets */
+  .tabs {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 5px;
+  }
+
+  .tab {
+    padding: 8px 15px;
+  }
+
+  /* Vue du marché */
+  .market-view {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    grid-template-columns: 1fr;
+  }
+
+  .crypto-list {
+    max-height: 250px;
+  }
+
+  .crypto-item {
+    padding: 10px;
+  }
+
+  .crypto-info img {
+    width: 30px;
+    height: 30px;
+  }
+
+  /* Détail crypto */
+  .crypto-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .crypto-price {
+    text-align: left;
+    width: 100%;
+  }
+
+  /* Formulaire de transaction */
+  .transaction-type-selector button {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  .form-group input, .form-group select {
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  /* Tableau des transactions */
+  .transactions-list {
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 600px;
+  }
+
+  th, td {
+    padding: 8px;
+    font-size: 13px;
+  }
+}
+
+/* Pour les très petits écrans */
+@media only screen and (max-width: 480px) {
+  .timeframe-selector {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .timeframe-selector button {
+    flex: 1;
+    text-align: center;
+  }
+
+  .crypto-title h3 {
+    font-size: 16px;
+  }
+
+  .current-price {
+    font-size: 18px;
+  }
+
+  /* Montrer moins de colonnes dans les tableaux */
+  .transactions-list th:nth-child(4),
+  .transactions-list th:nth-child(5),
+  .transactions-list td:nth-child(4),
+  .transactions-list td:nth-child(5) {
+    display: none;
+  }
+}
+
+.wallet-section, .transaction-section, .history-section {
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.wallet-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.wallet-item {
+  padding: 10px;
+  border-bottom: 1px solid #dee2e6;
+}
+.wallet-item:last-child {
+  border-bottom: none;
+}
+.transaction-type-selector button {
+  padding: 8px 20px;
+  border: 1px solid #dee2e6;
+  background-color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-grow: 1;
+}
+.transaction-type-selector button.active {
+  background-color: #0056b3;
+  color: white;
+  border-color: #0056b3;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 15px;
+}
+.form-group label {
+  font-weight: 500;
+  font-size: 14px;
+  color: #495057;
+}
+.form-group input {
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 16px;
+}
+.buy {
+  color: #28a745;
+}
+.sell {
+  color: #dc3545;
+}
+
+.form-group select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.form-group select:disabled {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+}

@@ -1,0 +1,57 @@
+/* Structure globale du contenu principal */
+.main-content {
+  padding: 20px;
+  background-color: #f9fafb;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Quick Actions - côte à côte */
+.quick-actions-container {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+/* Transactions récentes */
+.recent-transactions {
+  background-color: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Pour le chatbot assistant, si besoin */
+.chatbot-assistant {
+  position: relative;
+  margin-top: 30px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 20px;
+}
+
+/* Responsivité pour petits écrans */
+@media only screen and (max-width: 768px) {
+  .main-content {
+    padding: 15px;
+    gap: 20px;
+  }
+  .quick-actions-container {
+    flex-direction: column;
+    gap: 15px;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .main-content {
+    padding: 10px;
+    gap: 15px;
+  }
+  .recent-transactions {
+    padding: 15px;
+  }
+}

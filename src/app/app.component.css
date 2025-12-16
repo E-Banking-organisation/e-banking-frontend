@@ -1,0 +1,186 @@
+/* Main container */
+.main-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #f9fafb;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Sidenav */
+.main-container app-side-nav {
+  width: 280px;
+  height: 100vh;
+  background-color: #e2e8f0;
+  transition: width 0.3s ease, transform 0.3s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  transform: translateX(0);
+}
+
+.main-container.compact-mode app-side-nav {
+  width: 80px;
+}
+
+.main-container.mobile-menu-closed app-side-nav {
+  transform: translateX(-100%); /* Hide sidenav off-screen */
+}
+
+.main-container.mobile-menu-open app-side-nav {
+  transform: translateX(0); /* Show sidenav */
+}
+
+/* Sidenav handle */
+.sidenav-handle {
+  position: fixed;
+  top: 0;
+  right: -30px;
+  width: 30px;
+  height: 40px;
+  background-color: #e2e8f0;
+  border-radius: 0 0 12px 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1002;
+}
+
+.sidenav-handle:hover {
+  background-color: #0c4a94;
+}
+
+/* Show handle in compact/mobile mode when closed */
+.nav-container.compact-mode .sidenav-handle,
+.nav-container:not(.is-open) .sidenav-handle.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Hide handle when mobile menu is open */
+.nav-container.is-open .sidenav-handle {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Main content */
+.main-content {
+  flex: 1;
+  padding: 20px;
+  background-color: #f9fafb;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  transition: margin-left 0.3s ease, padding 0.3s ease;
+  margin-left: 280px;
+}
+
+.main-container.compact-mode .main-content {
+  margin-left: 80px;
+}
+
+.main-container.mobile-menu-closed .main-content {
+  margin-left: 0;
+  padding-left: 20px;
+}
+
+/* Mobile toggle button */
+.mobile-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #1e68c6;
+  cursor: pointer;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 1001;
+}
+
+/* Mobile overlay for sidenav */
+.main-container.mobile-menu-open {
+  overflow: hidden;
+}
+
+.main-container.mobile-menu-open::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  cursor: pointer;
+}
+
+/* Ensure sidenav handle is visible over overlay */
+.main-container.mobile-menu-closed .sidenav-handle {
+  z-index: 1002;
+}
+
+
+/* Desktop layout */
+@media only screen and (min-width: 769px) {
+  .main-container:not(.compact-mode) app-side-nav {
+    width: 280px;
+  }
+  .main-content {
+    margin-left: 280px;
+  }
+  .main-container.compact-mode .main-content {
+    margin-left: 80px;
+  }
+}
+
+/* Tablet and mobile layout */
+@media only screen and (max-width: 768px) {
+  .main-container app-side-nav {
+    width: 280px;
+  }
+  .main-container.compact-mode app-side-nav {
+    width: 280px;
+  }
+  .main-container.mobile-menu-closed app-side-nav {
+    width: 280px;
+  }
+  .main-content {
+    margin-left: 0;
+    padding: 10px;
+  }
+  .main-container:not(.mobile-menu-closed) .main-content {
+    margin-left: 280px;
+  }
+  .mobile-menu-toggle {
+    display: block;
+  }
+  .sidenav-handle {
+    width: 6px;
+    height: 60px;
+    right: 8px;
+    top: 8px;
+    border-radius: 0 3px 3px 0;
+  }
+  .sidenav-handle:hover {
+    width: 8px;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .main-container app-side-nav {
+    width: 250px;
+  }
+  .main-content {
+    padding: 8px;
+  }
+  .main-container:not(.mobile-menu-closed) .main-content {
+    margin-left: 250px;
+  }
+}

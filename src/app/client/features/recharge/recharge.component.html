@@ -1,0 +1,184 @@
+<div class="recharges-container">
+  <!-- Onglets de navigation -->
+  <div class="tabs-container">
+    <div class="tab" [class.active]="activeTab === 'mobile'" (click)="activeTab = 'mobile'">
+      <fa-icon [icon]="faMobile"></fa-icon> Recharge téléphonique
+    </div>
+    <div class="tab" [class.active]="activeTab === 'service'" (click)="activeTab = 'service'">
+      <fa-icon [icon]="faWifi"></fa-icon> Recharge de services
+    </div>
+    <div class="tab" [class.active]="activeTab === 'history'" (click)="activeTab = 'history'">
+      <fa-icon [icon]="faHistory"></fa-icon> Historique
+    </div>
+  </div>
+
+  <!-- Section Recharge téléphonique -->
+  <div *ngIf="activeTab === 'mobile'" class="section-card">
+    <h2><fa-icon [icon]="faMobile"></fa-icon> Recharge téléphonique</h2>
+
+    <!-- Sélection de l'opérateur -->
+    <div class="operator-selection">
+      <h3>Choisissez votre opérateur</h3>
+      <div class="operators-grid">
+        <div *ngFor="let operator of operators"
+             class="operator-card"
+             [class.selected]="mobileRechargeForm.operatorId === operator.id"
+             (click)="selectMobileOperator(operator.id)">
+          <img [src]="operator.logo" [alt]="operator.name" width="80%" height="50%">
+          <span>{{operator.name}}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulaire de recharge -->
+    <div class="recharge-form" *ngIf="mobileRechargeForm.operatorId > 0">
+      <div class="form-group">
+        <label>Numéro de téléphone</label>
+        <input type="tel" [(ngModel)]="mobileRechargeForm.phoneNumber" placeholder="06XXXXXXXX">
+      </div>
+
+      <div class="form-group">
+        <label>Montant de la recharge</label>
+        <div class="amount-options">
+          <div *ngFor="let amount of predefinedAmounts"
+               class="amount-option"
+               [class.selected]="mobileRechargeForm.amount === amount"
+               (click)="selectAmount(amount)">
+            {{amount}} €
+          </div>
+        </div>
+        <div class="custom-amount">
+          <input type="number" [(ngModel)]="mobileRechargeForm.amount" min="1" step="1" placeholder="Autre montant...">
+          <span class="currency">€</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Compte à débiter</label>
+        <select [(ngModel)]="mobileRechargeForm.accountId">
+          <option [value]="0" disabled>Sélectionnez un compte</option>
+          <option *ngFor="let account of accounts" [value]="account.id">
+            {{account.type}} - {{account.accountNumber | slice:0:4}}...{{account.accountNumber | slice:-4}} ({{account.balance}} {{account.currency}})
+          </option>
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-primary"
+                [disabled]="!validateMobileRecharge()"
+                (click)="processMobileRecharge()">
+          <fa-icon [icon]="faCreditCard"></fa-icon> Recharger maintenant
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Recharge de services -->
+  <div *ngIf="activeTab === 'service'" class="section-card">
+    <h2><fa-icon [icon]="faWifi"></fa-icon> Recharge de services</h2>
+
+    <!-- Filtres par catégorie -->
+    <div class="category-filters">
+      <button class="category-btn"
+              [class.active]="selectedCategory === ''"
+              (click)="selectedCategory = ''">
+        Tous
+      </button>
+      <button *ngFor="let category of categories"
+              class="category-btn"
+              [class.active]="selectedCategory === category"
+              (click)="selectedCategory = category">
+        {{category | titlecase}}
+      </button>
+    </div>
+
+    <!-- Sélection du service -->
+    <div class="operator-selection">
+      <h3>Choisissez votre service</h3>
+      <div class="operators-grid services-grid">
+        <div *ngFor="let service of getOperatorsByCategory(selectedCategory)"
+             class="operator-card service-card"
+             [class.selected]="serviceRechargeForm.operatorId === service.id"
+             (click)="selectService(service.id)">
+          <img [src]="service.logo" [alt]="service.name">
+          <span>{{service.name}}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulaire de recharge de service -->
+    <div class="recharge-form" *ngIf="serviceRechargeForm.operatorId > 0">
+      <div class="form-group">
+        <label>Référence client / Identifiant (optionnel)</label>
+        <input type="text" [(ngModel)]="serviceRechargeForm.reference" placeholder="Référence ou identifiant...">
+      </div>
+
+      <div class="form-group">
+        <label>Montant à payer</label>
+        <div class="custom-amount">
+          <input type="number" [(ngModel)]="serviceRechargeForm.amount" min="1" step="0.01" placeholder="Montant...">
+          <span class="currency">€</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Compte à débiter</label>
+        <select [(ngModel)]="serviceRechargeForm.accountId">
+          <option [value]="0" disabled>Sélectionnez un compte</option>
+          <option *ngFor="let account of accounts" [value]="account.id">
+            {{account.type}} - {{account.accountNumber | slice:0:4}}...{{account.accountNumber | slice:-4}} ({{account.balance}} {{account.currency}})
+          </option>
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-primary"
+                [disabled]="!validateServiceRecharge()"
+                (click)="processServiceRecharge()">
+          <fa-icon [icon]="faMoneyBill"></fa-icon> Payer maintenant
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Historique des recharges -->
+  <div *ngIf="activeTab === 'history'" class="section-card">
+    <h2><fa-icon [icon]="faHistory"></fa-icon> Historique des recharges</h2>
+
+    <div class="transaction-table-container">
+      <table class="transaction-table">
+        <thead>
+        <tr>
+          <th>Date</th>
+          <th>Service / Opérateur</th>
+          <th>Détails</th>
+          <th>Compte</th>
+          <th>Montant</th>
+          <th>Statut</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let recharge of recharges">
+          <td>{{recharge.date | date:'dd/MM/yyyy'}}</td>
+          <td class="operator-cell">
+            <img class="mini-logo" [src]="getOperatorLogo(recharge.operatorId)" [alt]="getOperatorName(recharge.operatorId)">
+            {{getOperatorName(recharge.operatorId)}}
+          </td>
+          <td>
+            <span *ngIf="recharge.phoneNumber">Tél: {{recharge.phoneNumber}} </span>
+            <span *ngIf="recharge.reference"> Réf: {{recharge.reference}}</span>
+          </td>
+          <td>{{getAccountLabel(recharge.accountId)}}</td>
+          <td class="amount negative">-{{recharge.amount}} €</td>
+          <td>
+            <span class="badge" [ngClass]="recharge.status.toLowerCase()">{{recharge.status.toLowerCase()}}</span>
+          </td>
+        </tr>
+        <tr *ngIf="recharges.length === 0">
+          <td colspan="6" class="no-recharges">Aucune recharge trouvée</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

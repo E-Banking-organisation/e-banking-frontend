@@ -1,0 +1,78 @@
+<div class="dashboard-container">
+    <div class="dashboard-header">
+      <h1>Tableau de bord</h1>
+      <p>Bienvenue dans le panneau d'administration E-Bank</p>
+    </div>
+    
+    <div class="dashboard-stats">
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-info">
+          <span class="stat-value">{{ totalAgents }}</span>
+          <span class="stat-label">Agents totaux</span>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-info">
+          <span class="stat-value">{{ activeAgents }}</span>
+          <span class="stat-label">Agents actifs</span>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">🔄</div>
+        <div class="stat-info">
+          <span class="stat-value">{{ pendingTransactions }}</span>
+          <span class="stat-label">Transactions en attente</span>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">🚩</div>
+        <div class="stat-info">
+          <span class="stat-value">{{ flaggedTransactions }}</span>
+          <span class="stat-label">Transactions signalées</span>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">💵</div>
+        <div class="stat-info">
+          <span class="stat-value">{{ totalCurrencies }}</span>
+          <span class="stat-label">Devises supportées</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="dashboard-actions">
+      <div class="action-card" routerLink="/admin/agents">
+        <div class="action-icon">👥</div>
+        <h3>Gestion Agents</h3>
+        <p>Gérer tous les agents de la banque</p>
+        <button class="action-button">Accéder</button>
+      </div>
+      
+      <div class="action-card" routerLink="/admin/currencies">
+        <div class="action-icon">💵</div>
+        <h3>Gestion Devises</h3>
+        <p>Configurer les taux de change et devises</p>
+        <button class="action-button">Accéder</button>
+      </div>
+      
+      <div class="action-card" routerLink="/admin/transactions">
+        <div class="action-icon">🔄</div>
+        <h3>Vérification Transactions</h3>
+        <p>Examiner les transactions signalées</p>
+        <button class="action-button">Accéder</button>
+      </div>
+      
+      <div class="action-card" routerLink="/admin/global-settings">
+        <div class="action-icon">⚙️</div>
+        <h3>Paramètres Globaux</h3>
+        <p>Configurer les paramètres du système</p>
+        <button class="action-button">Accéder</button>
+      </div>
+    </div>
+  </div>

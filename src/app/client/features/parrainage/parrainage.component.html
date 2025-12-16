@@ -1,0 +1,136 @@
+<!-- parrainage.component.html -->
+<div class="page-container">
+  <div class="page-header">
+    <h1>Programme de Parrainage</h1>
+    <p class="subtitle">Invitez vos proches et gagnez des récompenses</p>
+  </div>
+
+  <div class="cards-container">
+    <!-- Lien de parrainage -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Votre lien de parrainage</h2>
+      </div>
+      <div class="card-body">
+        <div class="referral-link-container">
+          <input type="text" [value]="referralLink" readonly class="referral-input" #linkInput>
+          <div class="referral-actions">
+            <button class="btn-action" (click)="copyLink(linkInput)" title="Copier">
+              <fa-icon [icon]="faCopy"></fa-icon>
+            </button>
+            <button class="btn-action" (click)="shareByEmail()" title="Partager par email">
+              <fa-icon [icon]="faEnvelope"></fa-icon>
+            </button>
+            <button class="btn-action" (click)="shareByWhatsapp()" title="Partager par WhatsApp">
+              <fa-icon [icon]="faWhatsapp"></fa-icon>
+            </button>
+          </div>
+        </div>
+        <div class="referral-code">
+          <span>Code : </span>
+          <strong>{{ referralCode }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total des gains -->
+    <div class="card total-card">
+      <div class="card-header">
+        <h2>Vos gains</h2>
+      </div>
+      <div class="card-body">
+        <div class="total-amount">{{ totalGains }} €</div>
+        <div class="stats-container">
+          <div class="stat-item">
+            <div class="stat-value">{{ filleuls.length }}</div>
+            <div class="stat-label">Filleuls</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">{{ filleulsActifs.length }}</div>
+            <div class="stat-label">Actifs</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Historique des parrainages -->
+  <div class="card full-width">
+    <div class="card-header">
+      <h2>Historique des parrainages</h2>
+    </div>
+    <div class="card-body">
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+          <tr>
+            <th>Nom du filleul</th>
+            <th>Email</th>
+            <th>Date d'inscription</th>
+            <th>Statut</th>
+            <th>Bonus</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let filleul of filleuls" [ngClass]="{'active-row': filleul.statut === 'Prime accordée'}">
+            <td>{{ filleul.nom }}</td>
+            <td>{{ filleul.email }}</td>
+            <td>{{ filleul.dateInscription | date: 'dd/MM/yyyy' }}</td>
+            <td>
+                <span class="status-badge" [ngClass]="getStatusClass(filleul.statut)">
+                  {{ filleul.statut }}
+                </span>
+            </td>
+            <td>{{ filleul.bonus }}</td>
+          </tr>
+          <tr *ngIf="filleuls.length === 0">
+            <td colspan="5" class="no-data">Aucun filleul pour le moment</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Règlement du programme -->
+  <div class="card full-width">
+    <div class="card-header">
+      <h2>Règlement du programme</h2>
+    </div>
+    <div class="card-body">
+      <div class="rules-container">
+        <div class="rule-item">
+          <fa-icon [icon]="faUsers" class="rule-icon"></fa-icon>
+          <div class="rule-content">
+            <h3>Nombre maximum de filleuls</h3>
+            <p>{{ reglement.maxFilleulsParMois }} par mois</p>
+          </div>
+        </div>
+        <div class="rule-item">
+          <fa-icon [icon]="faCoins" class="rule-icon"></fa-icon>
+          <div class="rule-content">
+            <h3>Montant total des récompenses</h3>
+            <p>{{ reglement.montantMaxRecompenses }}</p>
+          </div>
+        </div>
+        <div class="rule-item">
+          <fa-icon [icon]="faInfoCircle" class="rule-icon"></fa-icon>
+          <div class="rule-content">
+            <h3>Conditions</h3>
+            <ul>
+              <li *ngFor="let condition of reglement.conditions">{{ condition }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div *ngIf="showNotification" class="notification" [ngClass]="{'show': showNotification}">
+    <div class="notification-content">
+      <fa-icon [icon]="faCheckCircle" class="notification-icon"></fa-icon>
+      <span>{{ notificationMessage }}</span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,198 @@
+<div class="virement-container">
+  <!-- Onglets de navigation -->
+  <div class="tabs-container">
+    <div class="tab" [class.active]="activeTab === 'new-transfer'" (click)="activeTab = 'new-transfer'">
+      <fa-icon [icon]="faExchangeAlt"></fa-icon> Nouveau virement
+    </div>
+    <div class="tab" [class.active]="activeTab === 'beneficiaries'" (click)="activeTab = 'beneficiaries'">
+      <fa-icon [icon]="faUserPlus"></fa-icon> Gérer mes bénéficiaires
+    </div>
+    <div class="tab" [class.active]="activeTab === 'history'" (click)="activeTab = 'history'">
+      <fa-icon [icon]="faHistory"></fa-icon> Historique
+    </div>
+  </div>
+
+  <!-- Section Nouveau Virement -->
+  <div *ngIf="activeTab === 'new-transfer'" class="section-card">
+    <h2>Effectuer un virement</h2>
+
+    <div class="form-group">
+      <label>Compte à débiter</label>
+      <select [(ngModel)]="transferForm.sourceAccountId" [disabled]="accounts.length === 0">
+        <option *ngIf="accounts.length === 0" [value]="0" disabled>Sélectionnez un compte</option>
+        <option *ngFor="let account of accounts" [value]="account.id">
+          {{account.type }} - {{account.rib | slice:0:4}}...{{account.rib | slice:-4}} - {{account.balance}} {{account.currency}}
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Bénéficiaire</label>
+      <div class="beneficiary-selector">
+        <select [(ngModel)]="transferForm.beneficiaryId">
+          <option [value]="0" disabled>Sélectionnez un bénéficiaire</option>
+          <option *ngFor="let beneficiary of beneficiaries" [value]="beneficiary.beneficiare_id">
+            {{beneficiary.name}} - {{beneficiary.accountNumber | slice:0:4}}...{{beneficiary.accountNumber | slice:-4}}
+          </option>
+        </select>
+        <button class="btn-secondary" (click)="toggleNewBeneficiaryForm()">
+          <fa-icon [icon]="faPlus"></fa-icon> Nouveau
+        </button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Montant</label>
+      <div class="amount-input">
+        <input type="number" [(ngModel)]="transferForm.amount" min="0" step="0.01">
+        <span class="currency">M</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Motif</label>
+      <input type="text" [(ngModel)]="transferForm.description" placeholder="Ajoutez une description (optionnel)">
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-primary" [disabled]="!transferForm.sourceAccountId || !transferForm.beneficiaryId || transferForm.amount <= 0" (click)="initiateTransfer()">
+        Valider et envoyer
+      </button>
+    </div>
+
+
+    <!-- Modal de vérification OTP -->
+    <div *ngIf="showOtpVerification" class="modal-overlay">
+      <div class="modal-content">
+        <h3>Vérification de sécurité</h3>
+        <p>Un code de vérification a été envoyé sur votre téléphone.</p>
+        <p class="info-text">Montant: <strong>{{transferForm.amount}} MAD</strong></p>
+        <p class="info-text">Bénéficiaire: <strong><ng-container *ngIf="{name: getBeneficiaryName(transferForm.beneficiaryId)} as beneficiary">
+          {{ beneficiary.name }}
+        </ng-container></strong></p>
+
+        <div class="form-group">
+          <label>Code de vérification</label>
+          <input type="text" [(ngModel)]="otpCode" placeholder="Entrez le code à 6 chiffres" maxlength="6">
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-secondary" (click)="cancelOtp()">Annuler</button>
+          <button class="btn-primary" [disabled]="otpCode.length < 6" (click)="verifyAndSendTransfer()">Confirmer</button>
+        </div>
+
+        <div class="otp-help">
+          <p>Vous n'avez pas reçu le code ? <a href="#">Renvoyer</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Gestion des Bénéficiaires -->
+  <div *ngIf="activeTab === 'beneficiaries'" class="section-card">
+    <div class="section-header">
+      <h2>Mes Bénéficiaires</h2>
+      <button class="btn-primary" (click)="toggleNewBeneficiaryForm(true)">
+        <fa-icon [icon]="faPlus"></fa-icon> Ajouter
+      </button>
+    </div>
+
+    <div class="beneficiaries-list">
+      <div *ngFor="let beneficiary of beneficiaries" class="beneficiary-card">
+        <div class="beneficiary-info">
+          <div class="beneficiary-name">
+            {{beneficiary.name}}
+            <fa-icon *ngIf="beneficiary.favorite" [icon]="faStar" class="favorite-icon"></fa-icon>
+          </div>
+          <div class="beneficiary-account">{{beneficiary.accountNumber}}</div>
+        </div>
+        <div class="beneficiary-actions">
+          <button class="btn-icon" (click)="toggleFavorite(beneficiary)">
+            <fa-icon [icon]="faStar" [class.active]="beneficiary.favorite"></fa-icon>
+          </button>
+          <button class="btn-icon" (click)="deleteBeneficiary(beneficiary.id)">
+            <fa-icon [icon]="faTrash"></fa-icon>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="beneficiaries.length === 0" class="no-beneficiaries">
+        Vous n'avez pas encore ajouté de bénéficiaires.
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Historique des Virements -->
+  <div *ngIf="activeTab === 'history'" class="section-card">
+    <h2>Historique des virements</h2>
+
+    <div class="transaction-table-container">
+      <table class="transaction-table">
+        <thead>
+        <tr>
+          <th>Date</th>
+          <th>Bénéficiaire</th>
+          <th>Compte débité</th>
+          <th>Montant</th>
+          <th>Motif</th>
+          <th>Statut</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let transfer of paginatedTransfers">
+          <td>{{transfer.date | date:'dd/MM/yyyy'}}</td>
+          <td>{{transfer.destination}}</td>
+          <td>{{transfer.source}}</td>
+          <td class="amount negative">-{{transfer.amount}} MAD</td>
+          <td class="description">{{transfer.description}}</td>
+          <td>
+            <span class="badge {{transfer.status.toLowerCase()}}">{{transfer.status}}</span>
+          </td>
+        </tr>
+
+        <tr *ngIf="transfers.length === 0">
+          <td colspan="6" class="no-transfers">Aucun virement trouvé</td>
+        </tr>
+        </tbody>
+      </table>
+
+      <!-- Contrôles de pagination -->
+      <div *ngIf="transfers.length > 0" class="pagination-controls">
+        <div class="pagination-info">
+          Page {{ currentPage }} sur {{ totalPages }}
+        </div>
+        <div class="pagination-buttons">
+          <button class="pagination-btn" [disabled]="currentPage === 1" (click)="previousPage()">
+            &laquo; Précédent
+          </button>
+          <button class="pagination-btn" [disabled]="currentPage === totalPages" (click)="nextPage()">
+            Suivant &raquo;
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulaire nouveau bénéficiaire (modal) -->
+  <div *ngIf="showNewBeneficiary" class="modal-overlay">
+    <div class="modal-content">
+      <h3>{{beneficiaryForm.id ? 'Modifier' : 'Ajouter'}} un bénéficiaire</h3>
+      <div class="form-group">
+        <label>Numéro de compte </label>
+        <input type="text" [(ngModel)]="beneficiaryForm.accountNumber" placeholder="FRXX XXXX XXXX XXXX XXXX XXXX XXX">
+      </div>
+
+      <div class="form-group checkbox-group">
+        <input type="checkbox" id="favorite-checkbox" [(ngModel)]="beneficiaryForm.favorite" [ngModelOptions]="{standalone: false}">
+        <label for="favorite-checkbox">Ajouter aux favoris</label>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-secondary" (click)="toggleNewBeneficiaryForm()">Annuler</button>
+        <button class="btn-primary" [disabled]="!beneficiaryForm.accountNumber" (click)="saveBeneficiary()">
+          {{beneficiaryForm.id ? 'Modifier' : 'Ajouter'}}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

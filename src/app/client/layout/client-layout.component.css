@@ -1,0 +1,190 @@
+/* Main container */
+.main-container {
+  min-height: 100vh;
+  width: 100%;
+  background-color: #f9fafb;
+  position: relative;
+  transition: all 0.3s ease;
+  overflow-x: hidden;
+}
+
+/* Contenu principal */
+.main {
+  flex: 1;
+  padding: 30px;
+  margin-left: 280px;
+  width: calc(100% - 280px);
+  background-color: #f1f5f9;
+  min-height: 100vh;
+  transition: margin-left 0.3s ease, width 0.3s ease;
+  box-sizing: border-box;
+}
+
+/* Mode compact */
+.main-container.compact-mode .main {
+  margin-left: 100px;
+  width: calc(100% - 100px);
+}
+
+
+/* Main content */
+.main-content {
+  flex: 1;
+  padding: 20px;
+  background-color: #f9fafb;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  transition: margin-left 0.3s ease, padding 0.3s ease;
+  margin-left: 280px;
+}
+
+.main-container.compact-mode .main-content {
+  margin-left: 80px;
+}
+
+.main-container.mobile-menu-closed .main-content {
+  margin-left: 0;
+  padding-left: 20px;
+}
+
+
+/* Desktop layout */
+@media only screen and (min-width: 769px) {
+  .main-container:not(.compact-mode) app-side-nav {
+    width: 280px;
+  }
+  .main-content {
+    margin-left: 280px;
+  }
+  .main-container.compact-mode .main-content {
+    margin-left: 80px;
+  }
+}
+
+/* Tablet and mobile layout */
+@media only screen and (max-width: 768px) {
+  main-container.mobile-menu-open app-side-nav {
+    position: relative;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    background: #fff;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+    z-index: auto;
+    transition: width 0.3s;
+  }
+
+  .main-container.mobile-menu-open .main,
+  .main-container.mobile-menu-open .main-content {
+    margin-left: 280px;
+    width: calc(100% - 280px);
+    transition: margin-left 0.3s, width 0.3s;
+  }
+
+  .main-container:not(.mobile-menu-open) app-side-nav {
+    width: 0;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .main {
+    margin-left: 0;
+    width: 100%;
+    padding: 20px 15px;
+    overflow-x: hidden;
+  }
+
+  .main-container.mobile-menu-open .main {
+    margin-left: 280px;
+    width: calc(100% - 280px);
+  }
+
+  /* Formulaires en mode mobile */
+  .form-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .action-buttons button {
+    width: 100%;
+    padding: 6px 8px;
+    font-size: 0.85rem;
+  }
+
+}
+
+@media only screen and (max-width: 480px) {
+  .main {
+    padding: 15px 10px;
+  }
+
+  /* Ajustement des cartes et conteneurs */
+  .main .card,
+  .main .content-section {
+    padding: 12px !important;
+    margin-bottom: 12px !important;
+  }
+
+  /* Optimisation pour très petits écrans */
+  .table-container {
+    margin-left: -10px;
+    margin-right: -10px;
+    width: calc(100% + 20px);
+    border-radius: 0;
+  }
+
+  .table-container table td,
+  .table-container table th {
+    padding: 8px 6px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  /* Ajustement des boutons */
+  .main button {
+    padding: 8px 12px !important;
+    font-size: 0.9rem !important;
+  }
+
+  /* Ajustement des modals */
+  .modal-container {
+    width: 95% !important;
+    padding: 12px !important;
+  }
+
+  .modal-header h2 {
+    font-size: 1.2rem !important;
+  }
+
+  /* Pour les détails du client */
+  .detail-row {
+    flex-direction: column;
+    margin-bottom: 10px;
+  }
+
+  .detail-label {
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+
+  .main-container app-side-nav {
+    width: 250px;
+  }
+  .main-content {
+    padding: 8px;
+  }
+  .main-container:not(.mobile-menu-closed) .main-content {
+    margin-left: 250px;
+  }
+}

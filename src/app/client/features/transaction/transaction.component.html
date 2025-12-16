@@ -1,0 +1,110 @@
+<!-- MODE RÉSUMÉ -->
+<div *ngIf="displayMode === 'summary'" class="account-summary-container">
+  <h3>Résumé des comptes</h3>
+
+  <div class="account-summary-list">
+    <div class="card-summary" *ngFor="let account of accounts">
+      <div class="balance">
+        <strong>{{ account.type }}</strong>
+        <h2>{{ account.balance }} {{ account.currency }}</h2>
+      </div>
+
+      <div class="details">
+        <div>Compte courant</div>
+        <div class="card-number">**** **** **** {{ account.accountNumber.slice(-4) }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nouvelles 10 dernières transactions -->
+  <div class="recent-transactions section-card">
+    <table class="transactions-table">
+      <thead>
+      <tr>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Type</th>
+        <th>RIB Source</th>
+        <th>RIB Destination</th>
+        <th>Montant</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let transaction of latestTransactions">
+        <td>{{ transaction.date | date:'dd/MM/yyyy' }}</td>
+        <td>{{ transaction.description }}</td>
+        <td>{{ transaction.type.toLowerCase() }}</td>
+        <td>{{ transaction.source }}</td>
+        <td>{{ transaction.destination }}</td>
+        <td [ngClass]="{'positive': transaction.amount > 0, 'negative': transaction.amount < 0}">
+          {{ transaction.amount }} €
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODE DÉTAILLÉ -->
+<div *ngIf="displayMode === 'detailed'" class="transaction-table-container">
+  <table class="transaction-table">
+    <thead>
+    <tr>
+      <th (click)="sortTransactions('date')" class="sortable">
+        Date
+        <span class="sort-icon">
+          <fa-icon *ngIf="sortColumn !== 'date'" [icon]="faSort"></fa-icon>
+          <fa-icon *ngIf="sortColumn === 'date' && sortDirection === 'asc'" [icon]="faSortUp"></fa-icon>
+          <fa-icon *ngIf="sortColumn === 'date' && sortDirection === 'desc'" [icon]="faSortDown"></fa-icon>
+        </span>
+      </th>
+      <th>Description</th>
+      <th>Type</th>
+      <th>RIB Source</th>
+      <th>RIB Destination</th>
+      <th>Montant</th>
+      <th>Statut</th>
+    </tr>
+    </thead>
+    <tbody>
+      @for (transaction of paginatedTransactions; track transaction.id) {
+        <tr>
+          <td>{{ transaction.date | date:'dd/MM/yyyy' }}</td>
+          <td class="description">{{ transaction.description }}</td>
+          <td>{{ transaction.type.toLowerCase() }}</td>
+          <td>{{ transaction.source }}</td>
+          <td>{{ transaction.destination }}</td>
+          <td class="amount" [class.negative]="transaction.amount < 0" [class.positive]="transaction.amount > 0">
+            {{ transaction.amount }} €
+          </td>
+          <td>
+            <span class="badge {{ transaction.status.toLowerCase() }}">{{ transaction.status.toLowerCase() }}</span>
+          </td>
+        </tr>
+      }
+
+      @if (filteredTransactions.length === 0) {
+        <tr>
+          <td colspan="5" class="no-transactions">Aucune opération trouvée</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <!-- Contrôles de pagination -->
+  @if (filteredTransactions.length > 0) {
+    <div class="pagination-controls">
+      <div class="pagination-info">
+        Page {{ currentPage }} sur {{ totalPages }}
+      </div>
+      <div class="pagination-buttons">
+        <button class="pagination-btn" [disabled]="currentPage === 1" (click)="previousPage()">
+          « Précédent
+        </button>
+        <button class="pagination-btn" [disabled]="currentPage === totalPages" (click)="nextPage()">
+          Suivant »
+        </button>
+      </div>
+    </div>
+  }
+</div>

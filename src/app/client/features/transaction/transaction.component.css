@@ -1,0 +1,236 @@
+.pagination-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding: 10px 0;
+  border-top: 1px solid #eee;
+}
+
+.pagination-info {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.pagination-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.pagination-btn {
+  padding: 5px 12px;
+  background-color: #6b4ce6;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.pagination-btn:hover:not([disabled]) {
+  background-color: #5a3bd4;
+}
+
+.pagination-btn[disabled] {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Section tableau des opérations */
+.transaction-history {
+  background-color: white;
+}
+
+.transaction-table-container {
+  overflow-x: auto;
+}
+
+.transaction-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.transaction-table th,
+.transaction-table td {
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.transaction-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #eee;
+}
+
+.transaction-table tr {
+  border-bottom: 1px solid #eee;
+}
+
+.transaction-table tr:hover {
+  background-color: #f8f9fa;
+}
+
+.description {
+  max-width: 250px;
+}
+
+.amount {
+  font-weight: 500;
+}
+
+.negative {
+  color: #dc3545;
+}
+
+.positive {
+  color: #28a745;
+}
+
+.badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  color: white;
+  font-size: 0.85rem;
+  text-transform: capitalize;
+  display: inline-block;
+}
+
+.badge.validee {
+  background-color: #4caf50;
+}
+
+.badge.en-attente {
+  background-color: #ff9800;
+}
+
+.badge.echouée {
+  background-color: red;
+}
+
+.badge.annulee {
+  background-color: grey;
+}
+
+.no-transactions {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.no-account-selected {
+  text-align: center;
+  padding: 50px;
+  color: #666;
+  font-style: italic;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.sortable {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+.sortable:hover {
+  background-color: #f0f0f0;
+}
+
+.sort-icon {
+  margin-left: 5px;
+  color: #6b4ce6;
+}
+
+th.sortable {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+th.sortable::after {
+  content: '';
+  flex: 1;
+}
+
+.recent-transactions {
+  margin-top: 20px;
+}
+
+.transactions-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px; /* Ensure a minimum width for readability */
+}
+
+.transactions-table th,
+.transactions-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.transactions-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.positive {
+  color: green;
+}
+
+.negative {
+  color: red;
+}
+
+/* Ensure the table container handles overflow */
+.recent-transactions {
+  overflow-x: auto;
+}
+
+/* Responsive adjustments */
+@media only screen and (max-width: 768px) {
+  .transactions-table th,
+  .transactions-table td {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+
+  .transactions-table th {
+    font-size: 0.95rem;
+  }
+
+  .pagination-btn {
+    padding: 4px 10px;
+    font-size: 0.9rem;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .transactions-table {
+    min-width: 400px; /* Reduce minimum width for smaller screens */
+  }
+
+  .transactions-table th,
+  .transactions-table td {
+    padding: 6px;
+    font-size: 0.8rem;
+  }
+
+  .pagination-controls {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pagination-info {
+    font-size: 0.8rem;
+  }
+
+  .pagination-buttons {
+    width: 100%;
+    justify-content: center;
+  }
+}

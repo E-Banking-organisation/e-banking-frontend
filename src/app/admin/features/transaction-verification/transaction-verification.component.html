@@ -1,0 +1,209 @@
+<div class="transaction-verification-container">
+    <div class="header">
+      <div class="title-section">
+        <h1>Vérification des Transactions</h1>
+        <p>Examinez et approuvez les transactions signalées</p>
+      </div>
+
+      <div class="actions">
+        <div class="search-bar">
+          <input type="text" [(ngModel)]="searchTerm" (input)="onFilterChange()" placeholder="Rechercher une transaction...">
+        </div>
+
+        <div class="filter-dropdown">
+          <select [(ngModel)]="filterStatus" (change)="onFilterChange()">
+            <option value="ALL">Toutes les transactions</option>
+            <option value="FLAGGED">Transactions signalées</option>
+            <option value="PENDING">Transactions en attente</option>
+            <option value="VERIFIED">Transactions vérifiées</option>
+            <option value="FAILED">Transactions échouées</option>
+            <option value="COMPLETED">Transactions complétées</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transactions List -->
+    <div class="transactions-list" *ngIf="!isLoading; else loadingTemplate">
+      <div class="table-responsive">
+        <table *ngIf="filteredTransactions.length > 0; else noTransactions">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Transaction ID</th>
+              <th>Date</th>
+              <th>Source</th>
+              <th>Destination</th>
+              <th>Montant</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let transaction of filteredTransactions">
+              <td data-label="Type" class="transaction-type">
+                <div class="icon-container" [attr.data-type]="transaction.transactionType.toLowerCase()">
+                  <fa-icon [icon]="getTransactionIcon(transaction.transactionType)"></fa-icon>
+                </div>
+                <span>{{ transaction.transactionType }}</span>
+              </td>
+              <td data-label="Transaction ID">{{ transaction.id }}</td>
+              <td data-label="Date">{{ formatDate(transaction.timestamp) }}</td>
+              <td data-label="Source" >{{ transaction.sourceAccountNumber || '-' }}</td>
+              <td data-label="Destination">{{ transaction.destinationAccountNumber || '-' }}</td>
+              <td data-label="Montant" class="amount">{{ formatAmount(transaction.amount, transaction.currency) }}</td>
+              <td data-label="Statut">
+                <span class="status-badge" [class]="getStatusClass(transaction.status)">
+                  {{ transaction.status }}
+                </span>
+              </td>
+              <td data-label="Actions" class="actions-cell">
+                <button class="btn-action view" (click)="showTransaction(transaction)" title="Voir les détails">
+                  <fa-icon [icon]="faEye"></fa-icon>
+                </button>
+
+                <ng-container *ngIf="transaction.status === 'FLAGGED' || transaction.status === 'PENDING'">
+                  <button class="btn-action approve" (click)="verifyTransaction(transaction)" title="Approuver">
+                    <fa-icon [icon]="faCheckCircle"></fa-icon>
+                  </button>
+
+                  <button class="btn-action reject" (click)="showRejectTransactionForm(transaction)" title="Rejeter">
+                    <fa-icon [icon]="faTimesCircle"></fa-icon>
+                  </button>
+                </ng-container>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Transaction Details Modal -->
+    <div class="modal" *ngIf="currentTransaction && !showRejectForm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Détails de la Transaction</h2>
+          <button class="btn-close" (click)="currentTransaction = null">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="transaction-detail">
+            <span class="detail-label">ID Transaction:</span>
+            <span class="detail-value">{{ currentTransaction.id }}</span>
+          </div>
+
+          <div class="transaction-detail">
+            <span class="detail-label">Type:</span>
+            <span class="detail-value">{{ currentTransaction.transactionType }}</span>
+          </div>
+
+          <div class="transaction-detail">
+            <span class="detail-label">Date:</span>
+            <span class="detail-value">{{ formatDate(currentTransaction.timestamp) }}</span>
+          </div>
+
+          <div class="transaction-detail">
+            <span class="detail-label">Montant:</span>
+            <span class="detail-value amount">{{ formatAmount(currentTransaction.amount, currentTransaction.currency) }}</span>
+          </div>
+
+          <div class="transaction-detail" *ngIf="currentTransaction.sourceAccountNumber">
+            <span class="detail-label">Source:</span>
+            <span class="detail-value">{{ currentTransaction.sourceAccountNumber }}</span>
+          </div>
+
+          <div class="transaction-detail" *ngIf="currentTransaction.destinationAccountNumber">
+            <span class="detail-label">Destination:</span>
+            <span class="detail-value">{{ currentTransaction.destinationAccountNumber }}</span>
+          </div>
+
+          <div class="transaction-detail">
+            <span class="detail-label">Statut:</span>
+            <span class="detail-value">
+              <span class="status-badge" [class]="getStatusClass(currentTransaction.status)">
+                {{ currentTransaction.status }}
+              </span>
+            </span>
+          </div>
+
+          <div class="transaction-detail" *ngIf="currentTransaction.description">
+            <span class="detail-label">Description:</span>
+            <span class="detail-value">{{ currentTransaction.description }}</span>
+          </div>
+
+          <div class="transaction-detail" *ngIf="currentTransaction.flagReason">
+            <span class="detail-label">Raison du signalement:</span>
+            <span class="detail-value flag-reason">{{ currentTransaction.flagReason }}</span>
+          </div>
+
+          <div class="transaction-detail" *ngIf="currentTransaction.verifiedBy">
+            <span class="detail-label">Vérifié par:</span>
+            <span class="detail-value">{{ currentTransaction.verifiedBy }}</span>
+          </div>
+
+          <div class="transaction-detail" *ngIf="currentTransaction.verifiedAt">
+            <span class="detail-label">Date de vérification:</span>
+            <span class="detail-value">{{ formatDate(currentTransaction.verifiedAt) }}</span>
+          </div>
+        </div>
+
+        <div class="modal-footer" *ngIf="currentTransaction.status === 'FLAGGED' || currentTransaction.status === 'PENDING'">
+          <button class="btn-reject" (click)="showRejectTransactionForm(currentTransaction)">
+            <fa-icon [icon]="faTimesCircle"></fa-icon> Rejeter
+          </button>
+          <button class="btn-approve" (click)="verifyTransaction(currentTransaction)">
+            <fa-icon [icon]="faCheckCircle"></fa-icon> Approuver
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reject Transaction Modal -->
+    <div class="modal" *ngIf="currentTransaction && showRejectForm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Rejeter la Transaction</h2>
+          <button class="btn-close" (click)="cancelRejectForm()">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <p>Vous êtes sur le point de rejeter la transaction <strong>{{ currentTransaction.id }}</strong>.</p>
+
+          <form [formGroup]="rejectForm" (ngSubmit)="rejectTransaction()">
+            <div class="form-group">
+              <label for="reason">Motif du rejet:</label>
+              <textarea
+                id="reason"
+                formControlName="reason"
+                rows="4"
+                placeholder="Veuillez saisir une raison détaillée pour le rejet de cette transaction..."
+              ></textarea>
+              <div class="error-message" *ngIf="rejectForm.get('reason')?.invalid && rejectForm.get('reason')?.touched">
+                Veuillez fournir une raison détaillée (10 caractères minimum).
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" (click)="cancelRejectForm()">Annuler</button>
+              <button type="submit" class="btn-reject-confirm" [disabled]="rejectForm.invalid">
+                Confirmer le Rejet
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #loadingTemplate>
+      <div class="loading-container">
+        <div class="spinner"></div>
+        <p>Chargement des transactions...</p>
+      </div>
+    </ng-template>
+
+    <ng-template #noTransactions>
+      <div class="no-data-container">
+        <p>Aucune transaction trouvée pour les critères sélectionnés.</p>
+      </div>
+    </ng-template>
+  </div>

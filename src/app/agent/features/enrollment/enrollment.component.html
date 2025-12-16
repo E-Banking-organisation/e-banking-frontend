@@ -1,0 +1,141 @@
+<div class="enrollment-container">
+  <div class="header">
+    <h1>Demandes d'inscription</h1>
+    <div class="controls">
+      <div class="search-bar">
+        <input type="text" [(ngModel)]="searchTerm" placeholder="Rechercher un client...">
+      </div>
+
+      <div class="filter-options">
+        <select [(ngModel)]="statusFilter">
+          <option value="all">Tous les statuts</option>
+          <option value="pending">En attente</option>
+          <option value="approved">Approuvé</option>
+          <option value="rejected">Rejeté</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="enrollments-list table-container" *ngIf="!isLoading; else loadingTemplate">
+    <div *ngIf="getFilteredEnrollments().length; else noEnrollments">
+      <table>
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Email</th>
+            <th>Date de demande</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let enrollment of getFilteredEnrollments()">
+          <td data-label="Client">{{ enrollment.client.firstName }} {{ enrollment.client.lastName }}</td>
+          <td data-label="Email">{{ enrollment.client.email }}</td>
+          <td data-label="Date de demande">{{ formatDate(enrollment.dateCreated) }}</td>
+          <td data-label="Statut">
+        <span class="status-badge" [class]="getStatusClass(enrollment.status)">
+          {{ getStatusText(enrollment.status) }}
+        </span>
+          </td>
+          <td data-label="Actions">
+            <button class="btn-view" (click)="viewEnrollmentDetails(enrollment)">Détails</button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Enrollment details modal -->
+  <div class="modal" *ngIf="selectedEnrollment">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Détails de la demande</h2>
+        <button class="close-btn" (click)="closeDetails()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="client-info">
+          <h3>Informations du client</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">Nom complet:</span>
+              <span>{{ selectedEnrollment.client.firstName }} {{ selectedEnrollment.client.lastName }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Email:</span>
+              <span>{{ selectedEnrollment.client.email }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Téléphone:</span>
+              <span>{{ selectedEnrollment.client.phone || 'N/A' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Adresse:</span>
+              <span>{{ selectedEnrollment.client.address || 'N/A' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">ID National:</span>
+              <span>{{ selectedEnrollment.client.nationalId || 'N/A' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Date de naissance:</span>
+              <span>{{ selectedEnrollment.client.dateOfBirth ? formatDate(selectedEnrollment.client.dateOfBirth) : 'N/A' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="enrollment-details">
+          <h3>Détails de la demande</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">ID de la demande:</span>
+              <span>{{ selectedEnrollment.id }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Date de soumission:</span>
+              <span>{{ formatDate(selectedEnrollment.dateCreated) }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Statut:</span>
+              <span class="status-badge" [class]="getStatusClass(selectedEnrollment.status)">
+                {{ getStatusText(selectedEnrollment.status) }}
+              </span>
+            </div>
+            <div class="info-item" *ngIf="selectedEnrollment.dateProcessed">
+              <span class="label">Date de traitement:</span>
+              <span>{{ formatDate(selectedEnrollment.dateProcessed) }}</span>
+            </div>
+            <div class="info-item" *ngIf="selectedEnrollment.rejectionReason">
+              <span class="label">Raison du rejet:</span>
+              <span class="rejection-reason">{{ selectedEnrollment.rejectionReason }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" *ngIf="selectedEnrollment.status === 'pending'">
+        <button class="btn-approve" (click)="approveEnrollment(selectedEnrollment)">Approuver</button>
+        <div class="reject-container">
+          <input type="text" #rejectionReason placeholder="Raison du rejet...">
+          <button class="btn-reject" (click)="rejectEnrollment(selectedEnrollment, rejectionReason.value)">Rejeter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #loadingTemplate>
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Chargement des demandes d'inscription...</p>
+    </div>
+  </ng-template>
+
+  <ng-template #noEnrollments>
+    <div class="no-data">
+      <p>Aucune demande d'inscription ne correspond à vos critères.</p>
+    </div>
+  </ng-template>
+</div>

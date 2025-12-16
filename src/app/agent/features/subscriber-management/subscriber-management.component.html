@@ -1,0 +1,232 @@
+<div class="subscriber-management-container">
+    <div class="header-section">
+      <div class="title-section">
+        <h1>Gestion des abonnés</h1>
+        <p>Gérez les abonnements clients et leurs comptes associés</p>
+      </div>
+
+      <div class="search-section">
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Rechercher par nom, email ou ID..."
+          [(ngModel)]="searchQuery"
+          (input)="onSearch()"
+        >
+      </div>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-label">Filtrer par:</div>
+
+      <div class="filter-options">
+        <select [(ngModel)]="statusFilter" (change)="applyFilters()">
+          <option value="all">Tous les statuts</option>
+          <option value="active">Abonnés actifs</option>
+          <option value="expired">Abonnés expirés</option>
+          <option value="cancelled">Abonnés annulés</option>
+        </select>
+
+        <select [(ngModel)]="subscriptionTypeFilter" (change)="applyFilters()">
+          <option value="all">Tous les types</option>
+          <option value="standard">Standard</option>
+          <option value="premium">Premium</option>
+          <option value="vip">VIP</option>
+        </select>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading" class="loading-indicator">
+      Chargement des données...
+    </div>
+
+    <div *ngIf="!isLoading && filteredSubscribers.length === 0" class="empty-state">
+      <p>Aucun abonné trouvé avec les critères sélectionnés.</p>
+    </div>
+
+    <div *ngIf="!isLoading && filteredSubscribers.length > 0" class="subscribers-list table-container">
+      <table class="subscribers-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Type d'abonnement</th>
+            <th>Statut</th>
+            <th>Date d'expiration</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let subscriber of filteredSubscribers">
+            <td data-label="ID">{{ subscriber.id.substring(0, 8) }}</td>
+            <td data-label="Nom">{{ subscriber.firstName }} {{ subscriber.lastName }}</td>
+            <td data-label="Email">{{ subscriber.email }}</td>
+            <td data-label="Type d'abonnement">
+              <span class="subscription-type" [ngClass]="subscriber.subscriptionType">
+                {{ subscriber.subscriptionType === 'standard' ? 'Standard' :
+                subscriber.subscriptionType === 'premium' ? 'Premium' : 'VIP' }}
+              </span>
+            </td>
+            <td data-label="Statut">
+              <span class="status-badge" [ngClass]="subscriber.subscriptionStatus">
+                {{ subscriber.subscriptionStatus === 'active' ? 'Actif' :
+                subscriber.subscriptionStatus === 'expired' ? 'Expiré' : 'Annulé' }}
+              </span>
+            </td>
+            <td data-label="Date d'expiration">{{ subscriber.expirationDate | date:'dd/MM/yyyy' }}</td>
+            <td data-label="Actions">
+              <div class="action-buttons">
+                <button class="view-btn" (click)="viewSubscriber(subscriber.id)">Voir</button>
+
+                <button
+                  *ngIf="subscriber.subscriptionStatus !== 'active'"
+                  class="activate-btn"
+                  (click)="activateSubscription(subscriber.id)"
+                >
+                  Activer
+                </button>
+
+                <button
+                  *ngIf="subscriber.subscriptionStatus === 'active'"
+                  class="suspend-btn"
+                  (click)="suspendSubscription(subscriber.id)"
+                >
+                  Suspendre
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Subscriber Details Modal -->
+    <div *ngIf="selectedSubscriber" class="modal-overlay">
+      <div class="modal-container">
+        <div class="modal-header">
+          <h2>Détails de l'abonné</h2>
+          <button class="close-button" (click)="closeModal()">×</button>
+        </div>
+
+        <div class="modal-content">
+          <div class="subscriber-info">
+            <h3>Informations personnelles</h3>
+            <div class="info-row">
+              <div class="info-label">Nom complet:</div>
+              <div class="info-value">{{ selectedSubscriber.firstName }} {{ selectedSubscriber.lastName }}</div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-label">Email:</div>
+              <div class="info-value">{{ selectedSubscriber.email }}</div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-label">Téléphone:</div>
+              <div class="info-value">{{ selectedSubscriber.phone || 'Non renseigné' }}</div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-label">Adresse:</div>
+              <div class="info-value">{{ selectedSubscriber.address || 'Non renseignée' }}</div>
+            </div>
+          </div>
+
+          <div class="subscription-info">
+            <h3>Informations d'abonnement</h3>
+            <div class="info-row">
+              <div class="info-label">ID d'abonnement:</div>
+              <div class="info-value">{{ selectedSubscriber.subscriptionId }}</div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-label">Type:</div>
+              <div class="info-value">
+                <span class="subscription-type" [ngClass]="selectedSubscriber.subscriptionType">
+                  {{ selectedSubscriber.subscriptionType === 'standard' ? 'Standard' :
+                     selectedSubscriber.subscriptionType === 'premium' ? 'Premium' : 'VIP' }}
+                </span>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-label">Statut:</div>
+              <div class="info-value">
+                <span class="status-badge" [ngClass]="selectedSubscriber.subscriptionStatus">
+                  {{ selectedSubscriber.subscriptionStatus === 'active' ? 'Actif' :
+                     selectedSubscriber.subscriptionStatus === 'expired' ? 'Expiré' : 'Annulé' }}
+                </span>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-label">Date d'abonnement:</div>
+              <div class="info-value">{{ selectedSubscriber.subscriptionDate | date:'dd/MM/yyyy' }}</div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-label">Date d'expiration:</div>
+              <div class="info-value">{{ selectedSubscriber.expirationDate | date:'dd/MM/yyyy' }}</div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-label">Renouvellement automatique:</div>
+              <div class="info-value">{{ selectedSubscriber.autoRenewal ? 'Activé' : 'Désactivé' }}</div>
+            </div>
+          </div>
+
+          <div class="accounts-section">
+            <h3>Comptes associés</h3>
+
+            <div *ngIf="selectedSubscriber.accounts.length === 0" class="empty-accounts">
+              <p>Aucun compte associé à cet abonné.</p>
+            </div>
+
+            <div *ngIf="selectedSubscriber.accounts.length > 0" class="accounts-list">
+              <div *ngFor="let account of selectedSubscriber.accounts" class="account-card">
+                <div class="account-header">
+                  <div class="account-type">
+                    {{ account.type === 'courant' ? 'Compte courant' :
+                       account.type === 'epargne' ? 'Compte épargne' : 'Livret' }}
+                  </div>
+                  <div class="account-status" [ngClass]="account.status">
+                    {{ account.status === 'active' ? 'Actif' :
+                       account.status === 'blocked' ? 'Bloqué' : 'Fermé' }}
+                  </div>
+                </div>
+
+                <div class="account-number">{{ account.accountNumber }}</div>
+
+                <div class="account-balance">
+                  {{ account.balance.toFixed(2) }} {{ account.currency }}
+                </div>
+
+                <div class="account-actions">
+                  <button *ngIf="account.status === 'active'" class="block-btn" (click)="blockAccount(account.id)">
+                    Bloquer
+                  </button>
+                  <button *ngIf="account.status === 'blocked'" class="unblock-btn" (click)="unblockAccount(account.id)">
+                    Débloquer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="update-btn" (click)="updateSubscriptionType()">
+            Modifier l'abonnement
+          </button>
+
+          <button
+            [ngClass]="{'activate-btn': selectedSubscriber.subscriptionStatus !== 'active', 'suspend-btn': selectedSubscriber.subscriptionStatus === 'active'}"
+            (click)="toggleSubscriptionStatus()"
+          >
+            {{ selectedSubscriber.subscriptionStatus === 'active' ? 'Suspendre' : 'Activer' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>

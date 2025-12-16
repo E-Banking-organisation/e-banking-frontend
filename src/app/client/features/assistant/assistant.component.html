@@ -1,0 +1,40 @@
+<div class="assistant-container">
+  <div class="assistant-header">
+    <h2>Assistant Bancaire</h2>
+  </div>
+
+  <div class="conversation-container">
+    <div *ngIf="conversation.length === 0" class="assistant">
+      <div class="message">
+        Bonjour, je suis votre assistant bancaire virtuel. Comment puis-je vous aider aujourd'hui ?
+      </div>
+    </div>
+
+    <div *ngFor="let msg of conversation" [ngClass]="msg.sender">
+      <div class="message">
+        {{msg.message}}
+      </div>
+      <div class="timestamp">
+        {{msg.timestamp | date:'HH:mm'}}
+      </div>
+    </div>
+
+    <div *ngIf="isLoading" class="assistant loading">
+      <div class="message">
+        <div class="typing-indicator">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="input-container">
+    <input type="text"
+           [(ngModel)]="userMessage"
+           (keyup.enter)="sendMessage()"
+           placeholder="Tapez votre message ici..." />
+    <button (click)="sendMessage()">Envoyer</button>
+  </div>
+</div>

@@ -1,0 +1,12 @@
+<div class="main-container" [ngClass]="getContainerClasses()" (click)="mobileMenuOpen && toggleMobileMenu()">
+  <app-side-nav #sidenav (compactModeChanged)="onSideNavCompactModeChanged($event)" (mobileMenuToggled)="onMobileMenuToggled($event)">
+    <button
+      class="sidenav-handle"
+      *ngIf="isMobile"
+      (click)="openSideNav()">
+    </button>
+  </app-side-nav>
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

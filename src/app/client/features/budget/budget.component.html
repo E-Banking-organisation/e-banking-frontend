@@ -1,0 +1,205 @@
+<div class="budget-container">
+  <div class="header">
+    <h2>Budget & Dépenses</h2>
+    <div class="monthly-selector">
+      <button (click)="changeMonth(-1)">&lt;</button>
+      <span>{{ currentMonth + 1 }}/{{ currentYear }}</span>
+      <button (click)="changeMonth(1)">&gt;</button>
+    </div>
+  </div>
+
+  <div class="alerts-panel" *ngIf="overages.length > 0">
+    <div class="alert" *ngFor="let overage of overages">
+      <fa-icon [icon]="faWarning" class="warning-icon"></fa-icon>
+      <span>Vous avez dépassé votre budget {{ overage.name }}</span>
+    </div>
+  </div>
+
+  <!-- Section Catégories et Gestion de catégories côte à côte -->
+  <div class="categories-management-grid">
+    <!-- Catégories de budget -->
+    <div class="budget-categories panel">
+      <h3>Catégories budgétaires</h3>
+      <div class="category-list">
+        <div *ngFor="let category of categories" class="category-item">
+          <div class="category-header">
+            <h4>{{ category.name }}</h4>
+            <span>{{ category.currentSpending | currency:'EUR':'symbol':'1.2-2' }} / {{ category.budgetLimit | currency:'EUR':'symbol':'1.2-2' }}</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress" [style.width.%]="getProgressPercentage(category)"
+                 [style.background-color]="category.color"
+                 [class.over-budget]="category.currentSpending > category.budgetLimit"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gestion des catégories -->
+    <div class="category-management panel">
+      <div class="category-header-actions">
+        <h3>Gérer les catégories</h3>
+        <button class="btn-outline" (click)="openCategoryModal()">
+          + Nouvelle catégorie
+        </button>
+      </div>
+
+      <div class="categories-management-list">
+        <div *ngFor="let category of categories" class="category-item-management">
+          <div class="category-color-indicator" [style.background-color]="category.color"></div>
+          <div class="category-details">
+            <h4>{{ category.name }}</h4>
+            <p>Budget: {{ category.budgetLimit | currency:'EUR':'symbol':'1.2-2' }}</p>
+          </div>
+          <div class="category-actions">
+            <button class="btn-icon" (click)="editCategory(category)" title="Modifier">✏️</button>
+            <button class="btn-icon" (click)="deleteCategory(category.id)" title="Supprimer">🗑️</button>
+          </div>
+        </div>
+
+        <div *ngIf="categories.length === 0" class="empty-state">
+          Aucune catégorie définie. Créez votre première catégorie.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Graphiques côte à côte -->
+  <div class="charts-container">
+    <!-- Graphique en barres des dépenses -->
+    <div class="expense-chart panel">
+      <h3>Dépenses mensuelles</h3>
+      <canvas *ngIf="isBrowser" baseChart
+              [data]="barChartData"
+              [options]="barChartOptions"
+              [type]="'bar'">
+      </canvas>
+    </div>
+
+    <!-- Graphique circulaire -->
+    <div class="pie-chart panel">
+      <h3>Répartition des dépenses</h3>
+      <canvas *ngIf="isBrowser" baseChart
+              [type]="'pie'"
+              [data]="pieChartData"
+              [options]="pieChartOptions">
+      </canvas>
+    </div>
+  </div>
+
+  <!-- Liste des dépenses récentes -->
+  <div class="recent-expenses panel">
+    <h3>Dépenses récentes</h3>
+    <table>
+      <thead>
+      <tr>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Catégorie</th>
+        <th>Montant</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let expense of expenses.slice(0, 5)">
+        <td>{{ expense.date | date:'dd/MM/yyyy' }}</td>
+        <td>{{ expense.description }}</td>
+        <td>{{ getCategoryName(expense.categoryId) }}</td>
+        <td>{{ expense.amount | currency:'EUR':'symbol':'1.2-2' }}</td>
+      </tr>
+      <tr *ngIf="expenses.length === 0">
+        <td colspan="4" class="empty-state">Aucune dépense à afficher</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Bouton flottant pour ajouter une dépense -->
+<button class="floating-add-button" (click)="openExpenseModal()">+</button>
+<!-- Modal pour ajouter/modifier une catégorie -->
+<div class="modal-overlay" *ngIf="showCategoryForm" (click)="cancelModal($event, 'category')">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h4>{{ editingCategory ? 'Modifier la catégorie' : 'Nouvelle catégorie' }}</h4>
+      <button class="close-modal" (click)="resetCategoryForm()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="category-name">Nom</label>
+        <input type="text" id="category-name" [(ngModel)]="newCategory.name" required>
+      </div>
+
+      <div class="form-group">
+        <label>Couleur</label>
+        <div class="color-palette">
+          <div *ngFor="let color of colorPalette"
+               class="color-option"
+               [style.background-color]="color"
+               [class.selected]="newCategory.color === color"
+               (click)="selectColor(color)">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="budget-limit">Limite budgétaire (€)</label>
+        <input type="number" id="budget-limit" [(ngModel)]="newCategory.budgetLimit" required min="0">
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="resetCategoryForm()">Annuler</button>
+      <button class="btn-primary" (click)="addOrUpdateCategory()"
+              [disabled]="!newCategory.name || newCategory.budgetLimit <= 0">
+        {{ editingCategory ? 'Mettre à jour' : 'Ajouter' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal pour ajouter une dépense -->
+<div class="modal-overlay" *ngIf="showExpenseForm" (click)="cancelModal($event, 'expense')">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h4>Ajouter une dépense</h4>
+      <button class="close-modal" (click)="resetExpenseForm()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="expense-modal-date">Date</label>
+        <input type="date" id="expense-modal-date" [(ngModel)]="newExpense.date">
+      </div>
+
+      <div class="form-group">
+        <label for="expense-modal-amount">Montant</label>
+        <input type="number" id="expense-modal-amount" [(ngModel)]="newExpense.amount" step="0.01">
+      </div>
+
+      <div class="form-group">
+        <label for="expense-modal-description">Description</label>
+        <input type="text" id="expense-modal-description" [(ngModel)]="newExpense.description">
+      </div>
+
+      <div class="form-group">
+        <label for="expense-modal-category">Catégorie</label>
+        <select id="expense-modal-category" [(ngModel)]="newExpense.categoryId">
+          <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="expense-modal-account">Compte</label>
+        <select id="expense-modal-account" [(ngModel)]="newExpense.accountId">
+          <option *ngFor="let account of accounts" [value]="account.id">{{ account.type }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="resetExpenseForm()">Annuler</button>
+      <button class="btn-primary" (click)="addExpense()">Ajouter</button>
+    </div>
+  </div>
+</div>
