@@ -1,102 +1,127 @@
 <div class="client-management-container">
-    <div class="header-section">
-      <div class="title-section">
-        <h1>Gestion des clients</h1>
-        <p>Gérez les clients et leurs informations personnelles</p>
-      </div>
-
-      <div class="action-section">
-        <div class="search-box">
-          <input
-            type="text"
-            placeholder="Rechercher un client..."
-            [(ngModel)]="searchQuery"
-            (input)="onSearch()"
-          >
-        </div>
-
-        <button class="add-client-btn" (click)="showAddClientModal()">
-          + Nouveau client
-        </button>
-      </div>
+  <div class="header-section">
+    <div class="title-section">
+      <h1>Gestion des clients</h1>
+      <p>Gérez les clients et leurs informations personnelles</p>
     </div>
 
-    <div class="filters-section">
-      <div class="filter-group">
-        <label>Statut:</label>
-        <select [(ngModel)]="statusFilter" (change)="applyFilters()">
-          <option value="all">Tous</option>
-          <option value="active">Actifs</option>
-          <option value="pending">En attente</option>
-          <option value="suspended">Suspendus</option>
-          <option value="closed">Fermés</option>
-        </select>
+    <div class="action-section">
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="Rechercher un client..."
+          [(ngModel)]="searchQuery"
+          (input)="onSearch()"
+        >
       </div>
-    </div>
 
-    <div *ngIf="isLoading" class="loading-indicator">
+      <button class="add-client-btn" (click)="showAddClientModal()">
+        + Nouveau client
+      </button>
+    </div>
+  </div>
+
+  <div class="filters-section">
+    <div class="filter-group">
+      <label for="statusFilter">Statut:</label>
+      <select id="statusFilter" [(ngModel)]="statusFilter" (change)="applyFilters()">
+        <option value="all">Tous</option>
+        <option value="active">Actifs</option>
+        <option value="pending">En attente</option>
+        <option value="suspended">Suspendus</option>
+        <option value="closed">Fermés</option>
+      </select>
+    </div>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-indicator">
       <div class="spinner"></div>
       <p>Chargement des clients...</p>
     </div>
+  }
 
-    <div *ngIf="!isLoading && filteredClients.length === 0" class="empty-state">
+  @if (!isLoading && filteredClients.length === 0) {
+    <div class="empty-state">
       <div class="empty-icon">🔍</div>
       <p>Aucun client ne correspond à votre recherche</p>
       <button class="reset-search-btn" (click)="resetFilters()">Réinitialiser la recherche</button>
     </div>
+  }
 
-    <div *ngIf="!isLoading && filteredClients.length > 0" class="clients-table-container table-container">
+  @if (!isLoading && filteredClients.length > 0) {
+    <div class="clients-table-container table-container">
       <table class="clients-table">
         <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nom</th>
-            <th>Email</th>
-            <th>Téléphone</th>
-            <th>Statut</th>
-            <th>Actions</th>
-          </tr>
+        <tr>
+          <th>ID</th>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>Téléphone</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let client of filteredClients">
-            <td data-label="ID">{{ client.id.substring(0, 8) }}</td>
-            <td data-label="Nom">{{ client.firstName }} {{ client.lastName }}</td>
-            <td data-label="Email">{{ client.email }}</td>
-            <td data-label="Téléphone">{{ client.phone || 'Non renseigné' }}</td>
-            <td data-label="Statut">
-        <span class="status-badge" [ngClass]="client.status">
-          {{ client.status === 'active' ? 'Actif' :
-          client.status === 'pending' ? 'En attente' :
-            client.status === 'suspended' ? 'Suspendu' : 'Fermé' }}
-        </span>
-            </td>
-            <td data-label="Actions">
-              <div class="action-buttons">
-                <button class="view-btn" (click)="viewClient(client.id)">
-                  <span class="btn-icon">👁️</span>
-                </button>
-                <button class="edit-btn" (click)="editClient(client)">
-                  <span class="btn-icon">✏️</span>
-                </button>
-                <div class="dropdown">
-                  <button class="more-btn" (click)="toggleDropdown(client.id)">
-                    <span class="btn-icon">⋮</span>
+          @for (client of filteredClients; track client.id) {
+            <tr>
+              <td data-label="ID">{{ client.id.substring(0, 8) }}</td>
+              <td data-label="Nom">{{ client.firstName }} {{ client.lastName }}</td>
+              <td data-label="Email">{{ client.email }}</td>
+              <td data-label="Téléphone">{{ client.phone || 'Non renseigné' }}</td>
+              <td data-label="Statut">
+                <span class="status-badge" [ngClass]="client.status">
+                  @switch (client.status) {
+                    @case ('active') {
+                      Actif
+                    }
+                    @case ('pending') {
+                      En attente
+                    }
+                    @case ('suspended') {
+                      Suspendu
+                    }
+                    @default {
+                      Fermé
+                    }
+                  }
+                </span>
+              </td>
+              <td data-label="Actions">
+                <div class="action-buttons">
+                  <button class="view-btn" (click)="viewClient(client.id)">
+                    <span class="btn-icon">👁️</span>
                   </button>
-                  <div class="dropdown-menu" *ngIf="activeDropdown === client.id">
-                    <button *ngIf="client.status !== 'active'" (click)="activateClient(client.id)">Activer</button>
-                    <button *ngIf="client.status === 'active'" (click)="suspendClient(client.id)">Suspendre</button>
-                    <button (click)="deleteClient(client.id)">Supprimer</button>
+                  <button class="edit-btn" (click)="editClient(client)">
+                    <span class="btn-icon">✏️</span>
+                  </button>
+                  <div class="dropdown">
+                    <button class="more-btn" (click)="toggleDropdown(client.id)">
+                      <span class="btn-icon">⋮</span>
+                    </button>
+                    @if (activeDropdown === client.id) {
+                      <div class="dropdown-menu">
+                        @if (client.status !== 'active') {
+                          <button (click)="activateClient(client.id)">Activer</button>
+                        }
+                        @if (client.status === 'active') {
+                          <button (click)="suspendClient(client.id)">Suspendre</button>
+                        }
+                        <button (click)="deleteClient(client.id)">Supprimer</button>
+                      </div>
+                    }
                   </div>
                 </div>
-              </div>
-            </td>
-          </tr>
+              </td>
+            </tr>
+          }
         </tbody>
       </table>
     </div>
+  }
 
-    <!-- Client Modal (Add/Edit) -->
-    <div *ngIf="showClientModal" class="modal-overlay">
+  @if (showClientModal) {
+    <div class="modal-overlay">
       <div class="modal-container">
         <div class="modal-header">
           <h2>{{ isEditMode ? 'Modifier le client' : 'Ajouter un client' }}</h2>
@@ -114,9 +139,11 @@
                   formControlName="firstName"
                   [ngClass]="{'invalid': isFieldInvalid('firstName')}"
                 >
-                <div *ngIf="isFieldInvalid('firstName')" class="error-message">
-                  Le prénom est requis
-                </div>
+                @if (isFieldInvalid('firstName')) {
+                  <div class="error-message">
+                    Le prénom est requis
+                  </div>
+                }
               </div>
 
               <div class="form-group">
@@ -127,9 +154,11 @@
                   formControlName="lastName"
                   [ngClass]="{'invalid': isFieldInvalid('lastName')}"
                 >
-                <div *ngIf="isFieldInvalid('lastName')" class="error-message">
-                  Le nom est requis
-                </div>
+                @if (isFieldInvalid('lastName')) {
+                  <div class="error-message">
+                    Le nom est requis
+                  </div>
+                }
               </div>
             </div>
 
@@ -142,9 +171,11 @@
                   formControlName="email"
                   [ngClass]="{'invalid': isFieldInvalid('email')}"
                 >
-                <div *ngIf="isFieldInvalid('email')" class="error-message">
-                  Email invalide ou requis
-                </div>
+                @if (isFieldInvalid('email')) {
+                  <div class="error-message">
+                    Email invalide ou requis
+                  </div>
+                }
               </div>
 
               <div class="form-group">
@@ -170,15 +201,17 @@
               </div>
             </div>
 
-            <div class="form-group" *ngIf="isEditMode">
-              <label for="status">Statut</label>
-              <select id="status" formControlName="status">
-                <option value="active">Actif</option>
-                <option value="pending">En attente</option>
-                <option value="suspended">Suspendu</option>
-                <option value="closed">Fermé</option>
-              </select>
-            </div>
+            @if (isEditMode) {
+              <div class="form-group">
+                <label for="status">Statut</label>
+                <select id="status" formControlName="status">
+                  <option value="active">Actif</option>
+                  <option value="pending">En attente</option>
+                  <option value="suspended">Suspendu</option>
+                  <option value="closed">Fermé</option>
+                </select>
+              </div>
+            }
           </form>
         </div>
 
@@ -194,9 +227,10 @@
         </div>
       </div>
     </div>
+  }
 
-    <!-- Client Details Modal -->
-    <div *ngIf="selectedClient" class="modal-overlay">
+  @if (selectedClient) {
+    <div class="modal-overlay">
       <div class="modal-container">
         <div class="modal-header">
           <h2>Détails du client</h2>
@@ -249,9 +283,20 @@
                 <div class="detail-label">Statut:</div>
                 <div class="detail-value">
                   <span class="status-badge" [ngClass]="selectedClient.status">
-                    {{ selectedClient.status === 'active' ? 'Actif' :
-                       selectedClient.status === 'pending' ? 'En attente' :
-                       selectedClient.status === 'suspended' ? 'Suspendu' : 'Fermé' }}
+                    @switch (selectedClient.status) {
+                      @case ('active') {
+                        Actif
+                      }
+                      @case ('pending') {
+                        En attente
+                      }
+                      @case ('suspended') {
+                        Suspendu
+                      }
+                      @default {
+                        Fermé
+                      }
+                    }
                   </span>
                 </div>
               </div>
@@ -271,4 +316,5 @@
         </div>
       </div>
     </div>
-  </div>
+  }
+</div>

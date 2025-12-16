@@ -1,8 +1,7 @@
-import {Component, HostListener, Inject, OnInit, PLATFORM_ID, ViewChild} from '@angular/core';
+import { Component, HostListener, inject, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { AdminSidebarComponent } from '../shared/admin-sidebar/admin-sidebar.component';
-import {AgentSidebarComponent} from '../../agent/shared/agent-sidebar/agent-sidebar.component';
 
 @Component({
   selector: 'app-admin-layout',
@@ -11,20 +10,19 @@ import {AgentSidebarComponent} from '../../agent/shared/agent-sidebar/agent-side
   templateUrl: './admin-layout.component.html',
   styleUrls: ['./admin-layout.component.css']
 })
-export class AdminLayoutComponent implements OnInit{
+export class AdminLayoutComponent implements OnInit {
   isMobile = false;
   sideNavCompact = false;
   mobileMenuOpen = false;
 
-  private resizeTimeout: any;
-
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  private resizeTimeout: ReturnType<typeof setTimeout> | undefined;
+  private platformId = inject(PLATFORM_ID);
 
   ngOnInit() {
     this.updateLayout();
   }
 
-  @ViewChild(AgentSidebarComponent) sidenavComponent!: AgentSidebarComponent;
+  @ViewChild(AdminSidebarComponent) sidenavComponent!: AdminSidebarComponent;
 
   openSideNav() {
     this.sidenavComponent.toggleSideNav();

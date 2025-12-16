@@ -1,10 +1,9 @@
 import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import {HTTP_INTERCEPTORS, provideHttpClient} from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { FormsModule } from '@angular/forms';
 import { routes } from './app.routes';
-
+import { authInterceptor } from './auth/interceptors/auth.interceptor';
 
 // Chart.js imports
 import {
@@ -19,7 +18,6 @@ import {
   BarController,
   PieController
 } from 'chart.js';
-import {authInterceptor} from './auth/interceptors/auth.interceptor';
 
 // Register Chart.js components
 ChartJS.register(
@@ -37,8 +35,9 @@ ChartJS.register(
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    provideHttpClient(),
-    provideAnimations(),
-    { provide: HTTP_INTERCEPTORS, useClass: authInterceptor, multi: true }
+    provideHttpClient(
+      withInterceptors([authInterceptor])
+    ),
+    provideAnimations()
   ]
 };

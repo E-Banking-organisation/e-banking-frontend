@@ -70,7 +70,7 @@ export class EnrollmentService {
   getEnrollments(): Observable<Enrollment[]> {
     // In a real app, this would call an API
     // return this.http.get<Enrollment[]>('/api/enrollments');
-    
+
     // For now, return mock data
     return of(this.mockEnrollments);
   }
@@ -83,7 +83,7 @@ export class EnrollmentService {
   createEnrollment(enrollment: Omit<Enrollment, 'id'>): Observable<Enrollment> {
     // In a real app, this would call an API
     // return this.http.post<Enrollment>('/api/enrollments', enrollment);
-    
+
     // For now, create a mock enrollment with a generated ID
     const newEnrollment: Enrollment = {
       ...enrollment,
@@ -94,19 +94,19 @@ export class EnrollmentService {
   }
 
   updateEnrollmentStatus(
-    id: string, 
-    status: 'pending' | 'approved' | 'rejected', 
-    agentId?: string, 
+    id: string,
+    status: 'pending' | 'approved' | 'rejected',
+    agentId?: string,
     rejectionReason?: string
   ): Observable<Enrollment | undefined> {
     // In a real app, this would call an API
     // return this.http.patch<Enrollment>(`/api/enrollments/${id}/status`, { status, agentId, rejectionReason });
-    
+
     // For now, update the mock enrollment
     const index = this.mockEnrollments.findIndex(e => e.id === id);
     if (index !== -1) {
-      const updatedEnrollment = { 
-        ...this.mockEnrollments[index], 
+      const updatedEnrollment = {
+        ...this.mockEnrollments[index],
         status,
         dateProcessed: status !== 'pending' ? new Date() : undefined,
         processedByAgentId: status !== 'pending' ? agentId : undefined,

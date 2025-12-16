@@ -1,10 +1,12 @@
-<div class="main-container" [ngClass]="getContainerClasses()" (click)="mobileMenuOpen && toggleMobileMenu()">
+<div class="main-container" [ngClass]="getContainerClasses()" (click)="mobileMenuOpen && toggleMobileMenu()" role="button" tabindex="0" (keydown.enter)="mobileMenuOpen && toggleMobileMenu()" (keydown.space)="mobileMenuOpen && toggleMobileMenu()">
   <app-agent-sidebar #sidenav (compactModeChanged)="onSideNavCompactModeChanged($event)" (mobileMenuToggled)="onMobileMenuToggled($event)">
-    <button
-      class="sidenav-handle"
-      *ngIf="isMobile"
-      (click)="openSideNav()">
-    </button>
+    @if (isMobile) {
+      <button
+        class="sidenav-handle"
+        (click)="openSideNav()"
+        aria-label="Ouvrir la barre latérale">
+      </button>
+    }
   </app-agent-sidebar>
   <main class="main">
     <router-outlet></router-outlet>

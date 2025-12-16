@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AdminService } from '../../core/services/admin.service';
@@ -14,25 +14,22 @@ import { CurrencyService } from '../../core/services/currency.service';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
+  private adminService = inject(AdminService);
+  private transactionService = inject(TransactionVerificationService);
+  private agentService = inject(AgentService);
+  private currencyService = inject(CurrencyService);
+
   totalAgents: number = 0;
   activeAgents: number = 0;
   pendingTransactions: number = 0;
   flaggedTransactions: number = 0;
   totalCurrencies: number = 0;
 
-  constructor(
-    private adminService: AdminService,
-    private transactionService: TransactionVerificationService,
-    private agentService: AgentService,
-    private currencyService: CurrencyService
-  ) {}
-
   ngOnInit(): void {
     this.loadDashboardData();
   }
 
   loadDashboardData(): void {
-    // In a real app, use the actual services
     this.adminService.getAdminDashboardStats().subscribe(stats => {
       this.totalAgents = stats.totalAgents;
       this.activeAgents = stats.activeAgents;

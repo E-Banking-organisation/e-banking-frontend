@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CurrencyService } from '../../core/services/currency.service';
@@ -14,6 +14,9 @@ import { faEdit, faTrash, faPlus, faTimes, faCheck } from '@fortawesome/free-sol
   styleUrls: ['./currency-management.component.css']
 })
 export class CurrencyManagementComponent implements OnInit {
+  private currencyService = inject(CurrencyService);
+  private fb = inject(FormBuilder);
+
   currencies: Currency[] = [];
   isLoading: boolean = true;
   showForm: boolean = false;
@@ -30,10 +33,7 @@ export class CurrencyManagementComponent implements OnInit {
   faTimes = faTimes;
   faCheck = faCheck;
 
-  constructor(
-    private currencyService: CurrencyService,
-    private fb: FormBuilder
-  ) {
+  constructor() {
     this.currencyForm = this.fb.group({
       code: ['', [Validators.required, Validators.maxLength(3)]],
       name: ['', [Validators.required, Validators.maxLength(50)]],
@@ -67,7 +67,6 @@ export class CurrencyManagementComponent implements OnInit {
     const formValue = this.currencyForm.value;
 
     if (this.isEditing && this.currentCurrencyId) {
-      // Update existing currency
       this.currencyService.updateCurrency(this.currentCurrencyId, formValue).subscribe(
         updatedCurrency => {
           const index = this.currencies.findIndex(c => c.id === this.currentCurrencyId);
@@ -79,7 +78,6 @@ export class CurrencyManagementComponent implements OnInit {
         error => console.error('Error updating currency:', error)
       );
     } else {
-      // Create new currency
       this.currencyService.createCurrency(formValue).subscribe(
         newCurrency => {
           this.currencies.push(newCurrency);

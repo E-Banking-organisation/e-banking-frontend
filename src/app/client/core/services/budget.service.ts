@@ -61,9 +61,6 @@ export class BudgetService {
     return of(this.categories);
   }
 
-  getExpenses(): Observable<Expense[]> {
-    return of(this.expenses);
-  }
 
   addExpense(expense: Omit<Expense, 'id'>): Observable<Expense> {
     const newExpense: Expense = { ...expense, id: Date.now() };
@@ -84,4 +81,48 @@ export class BudgetService {
   getBudgetAlerts(): Observable<BudgetAlert[]> {
     return of(this.alerts);
   }
+
+  updateBudgetCategory(category: BudgetCategory): Observable<void> {
+    const index = this.categories.findIndex(c => c.id === category.id);
+    if (index !== -1) this.categories[index] = category;
+    return of();
+  }
+
+  deleteCategory(categoryId: number): Observable<void> {
+    this.categories = this.categories.filter(c => c.id !== categoryId);
+    return of();
+  }
+
+  getExpenses(startDate?: Date, endDate?: Date): Observable<Expense[]> {
+    return of(this.expenses.filter(e => {
+      if (!startDate || !endDate) return true;
+      return e.date >= startDate && e.date <= endDate;
+    }));
+  }
+
+  checkBudgetOverages(): Observable<BudgetCategory[]> {
+    const overagedCategories = this.categories.filter(category =>
+      category.currentSpending > category.budgetLimit
+    );
+    return of(overagedCategories);
+  }
+
+  getMonthlyExpenseData(year: number): Observable<{ month: string; amount: number }[]> {
+    const monthNames = [
+      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+    ];
+
+    const monthly = monthNames.map(name => ({ month: name, amount: 0 }));
+
+    this.expenses
+      .filter(e => e.date.getFullYear() === year)
+      .forEach(e => {
+        const m = e.date.getMonth();
+        monthly[m].amount += e.amount;
+      });
+
+    return of(monthly);
+  }
+
 }

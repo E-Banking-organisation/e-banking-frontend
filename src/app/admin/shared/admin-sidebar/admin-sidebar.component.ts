@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Inject, OnInit, Output, PLATFORM_ID } from '@angular/core';
+import { Component, EventEmitter, HostListener, inject, OnInit, Output, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
@@ -22,7 +22,9 @@ import {
   styleUrls: ['./admin-sidebar.component.css']
 })
 export class AdminSidebarComponent implements OnInit {
-  // FontAwesome icons
+  private authService = inject(AuthService);
+  private platformId = inject(PLATFORM_ID);
+
   faChartLine = faChartLine;
   faUsers = faUsers;
   faCog = faCog;
@@ -41,9 +43,7 @@ export class AdminSidebarComponent implements OnInit {
   @Output() compactModeChanged = new EventEmitter<boolean>();
   @Output() mobileMenuToggled = new EventEmitter<boolean>();
 
-  private resizeTimeout: any;
-
-  constructor(private authService: AuthService, @Inject(PLATFORM_ID) private platformId: Object) {}
+  private resizeTimeout: ReturnType<typeof setTimeout> | undefined;
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {

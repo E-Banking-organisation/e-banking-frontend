@@ -1,23 +1,36 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
+
+interface AdminLoginResponse {
+  token: string;
+  userId: string;
+  name: string;
+  role: string;
+}
+
+interface DashboardStats {
+  totalAgents: number;
+  activeAgents: number;
+  pendingTransactions: number;
+  flaggedTransactions: number;
+  totalCurrencies: number;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminService {
-  private isAuthenticated: boolean = true; // Pour le mock, toujours authentifié
-  
-  constructor(private http: HttpClient) { }
-  
-  login(email: string, password: string): Observable<any> {
-    // Mock implementation
-    return of({ 
+  private isAuthenticated: boolean = true;
+  private http = inject(HttpClient);
+
+  login(): Observable<AdminLoginResponse> {
+    return of({
       token: 'mock-admin-token',
       userId: 'admin-123',
       name: 'Super Admin',
-      role: 'ADMIN' 
+      role: 'ADMIN'
     }).pipe(
       tap(() => {
         this.isAuthenticated = true;
@@ -25,9 +38,8 @@ export class AdminService {
       })
     );
   }
-  
-  logout(): Observable<any> {
-    // Mock implementation
+
+  logout(): Observable<{ success: boolean }> {
     return of({ success: true }).pipe(
       tap(() => {
         this.isAuthenticated = false;
@@ -35,13 +47,12 @@ export class AdminService {
       })
     );
   }
-  
+
   isLoggedIn(): boolean {
     return this.isAuthenticated || localStorage.getItem('admin-token') !== null;
   }
-  
-  getAdminDashboardStats(): Observable<any> {
-    // Mock dashboard stats
+
+  getAdminDashboardStats(): Observable<DashboardStats> {
     return of({
       totalAgents: 53,
       activeAgents: 48,

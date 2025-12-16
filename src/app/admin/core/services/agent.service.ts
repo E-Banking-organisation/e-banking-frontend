@@ -14,7 +14,7 @@ export class AgentService {
       prenom: 'Alice',
       email: 'alice@example.com',
       role: 'AGENT',
-      etat: true,
+      etat: 'ACTIVE',
       dateCreation: new Date('2023-01-01'),
       telephone: '0612345678',
       codeAgence: 'AG001',
@@ -27,7 +27,7 @@ export class AgentService {
       prenom: 'Bob',
       email: 'bob@example.com',
       role: 'SUPERVISOR',
-      etat: false,
+      etat: 'INACTIVE',
       dateCreation: new Date('2023-02-15'),
       telephone: '0623456789',
       codeAgence: 'AG002'
@@ -71,7 +71,7 @@ export class AgentService {
     return of({ success: true });
   }
 
-  updateAgentStatus(id: string, etat: boolean): Observable<Agent> {
+  updateAgentStatus(id: string, etat: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'): Observable<Agent> {
     const index = this.agents.findIndex(a => a.id === id);
     if (index === -1) return throwError(() => new Error('Agent introuvable'));
     this.agents[index].etat = etat;

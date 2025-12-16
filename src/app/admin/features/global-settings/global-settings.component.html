@@ -1,34 +1,36 @@
 <div class="settings-container">
-    <div class="header">
-      <div class="title-section">
-        <h1>Paramètres Globaux</h1>
-        <p>Configurez les paramètres globaux du système bancaire</p>
-      </div>
-
-      <div class="actions">
-        <div class="search-bar">
-          <input type="text" [(ngModel)]="searchTerm" placeholder="Rechercher...">
-        </div>
-        <button class="btn-add" (click)="toggleForm()">
-          <fa-icon [icon]="showForm ? faTimes : faPlus"></fa-icon>
-          {{ showForm ? 'Annuler' : 'Ajouter un Paramètre' }}
-        </button>
-      </div>
+  <div class="header">
+    <div class="title-section">
+      <h1>Paramètres Globaux</h1>
+      <p>Configurez les paramètres globaux du système bancaire</p>
     </div>
 
-    <!-- Category Filter -->
-    <div class="category-filter">
+    <div class="actions">
+      <div class="search-bar">
+        <input type="text" [(ngModel)]="searchTerm" placeholder="Rechercher...">
+      </div>
+      <button class="btn-add" (click)="toggleForm()">
+        <fa-icon [icon]="showForm ? faTimes : faPlus"></fa-icon>
+        {{ showForm ? 'Annuler' : 'Ajouter un Paramètre' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Category Filter -->
+  <div class="category-filter">
+    @for (category of categories; track category) {
       <button
-        *ngFor="let category of categories"
         [class.active]="selectedCategory === category"
         (click)="filterByCategory(category)"
       >
         {{ category }}
       </button>
-    </div>
+    }
+  </div>
 
-    <!-- Setting Form -->
-    <div class="form-container" *ngIf="showForm">
+  <!-- Setting Form -->
+  @if (showForm) {
+    <div class="form-container">
       <div class="form-card">
         <h2>{{ isEditing ? 'Modifier le Paramètre' : 'Ajouter un Nouveau Paramètre' }}</h2>
 
@@ -37,17 +39,21 @@
             <div class="form-group">
               <label for="key">Clé</label>
               <input type="text" id="key" formControlName="key" placeholder="Ex: MAX_TRANSFER_AMOUNT" [disabled]="isEditing">
-              <div class="error-message" *ngIf="settingForm.get('key')?.invalid && settingForm.get('key')?.touched">
-                La clé est requise (Majuscules, chiffres et underscores uniquement)
-              </div>
+              @if (settingForm.get('key')?.invalid && settingForm.get('key')?.touched) {
+                <div class="error-message">
+                  La clé est requise (Majuscules, chiffres et underscores uniquement)
+                </div>
+              }
             </div>
 
             <div class="form-group">
               <label for="value">Valeur</label>
               <input type="text" id="value" formControlName="value" placeholder="Ex: 50000">
-              <div class="error-message" *ngIf="settingForm.get('value')?.invalid && settingForm.get('value')?.touched">
-                La valeur est requise
-              </div>
+              @if (settingForm.get('value')?.invalid && settingForm.get('value')?.touched) {
+                <div class="error-message">
+                  La valeur est requise
+                </div>
+              }
             </div>
 
             <div class="form-group">
@@ -72,9 +78,11 @@
           <div class="form-group wide">
             <label for="description">Description</label>
             <textarea id="description" formControlName="description" rows="3" placeholder="Description du paramètre..."></textarea>
-            <div class="error-message" *ngIf="settingForm.get('description')?.invalid && settingForm.get('description')?.touched">
-              La description est requise
-            </div>
+            @if (settingForm.get('description')?.invalid && settingForm.get('description')?.touched) {
+              <div class="error-message">
+                La description est requise
+              </div>
+            }
           </div>
 
           <div class="form-actions">
@@ -86,12 +94,15 @@
         </form>
       </div>
     </div>
+  }
 
-    <!-- Settings List -->
-    <div class="settings-list" *ngIf="!isLoading; else loadingTemplate">
+  <!-- Settings List -->
+  @if (!isLoading) {
+    <div class="settings-list">
       <div class="table-responsive">
-        <table *ngIf="getFilteredSettings().length > 0; else noSettings">
-          <thead>
+        @if (getFilteredSettings().length > 0) {
+          <table>
+            <thead>
             <tr>
               <th>Clé</th>
               <th>Valeur</th>
@@ -101,43 +112,45 @@
               <th>Dernière Mise à jour</th>
               <th>Actions</th>
             </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let setting of getFilteredSettings()">
-              <td data-label="Clé"><strong>{{ setting.key }}</strong></td>
-              <td data-label="Valeur">{{ setting.isEncrypted ? '••••••••' : setting.value }}</td>
-              <td data-label="Catégorie"><span class="category-badge" [attr.data-category]="setting.category">{{ setting.category }}</span></td>
-              <td data-label="Description" class="description-cell">{{ setting.description }}</td>
-              <td data-label="Sécurisé"><span class="security-badge" [class.secured]="setting.isEncrypted">{{ setting.isEncrypted ? 'Oui' : 'Non' }}</span></td>
-              <td data-label="Dérnière Mise à jour">{{ formatDate(setting.updatedAt) }}</td>
-              <td data-label="Actions" class="actions-cell">
-                <button class="btn-action edit" (click)="editSetting(setting)" title="Modifier">
-                  <fa-icon [icon]="faEdit"></fa-icon>
-                </button>
-                <button class="btn-action delete" (click)="deleteSetting(setting.id)" title="Supprimer">
-                  <fa-icon [icon]="faTrash"></fa-icon>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              @for (setting of getFilteredSettings(); track setting.id) {
+                <tr>
+                  <td data-label="Clé"><strong>{{ setting.key }}</strong></td>
+                  <td data-label="Valeur">{{ setting.isEncrypted ? '••••••••' : setting.value }}</td>
+                  <td data-label="Catégorie"><span class="category-badge" [attr.data-category]="setting.category">{{ setting.category }}</span></td>
+                  <td data-label="Description" class="description-cell">{{ setting.description }}</td>
+                  <td data-label="Sécurisé"><span class="security-badge" [class.secured]="setting.isEncrypted">{{ setting.isEncrypted ? 'Oui' : 'Non' }}</span></td>
+                  <td data-label="Dernière Mise à jour">{{ formatDate(setting.updatedAt) }}</td>
+                  <td data-label="Actions" class="actions-cell">
+                    <button class="btn-action edit" (click)="editSetting(setting)" title="Modifier">
+                      <fa-icon [icon]="faEdit"></fa-icon>
+                    </button>
+                    <button class="btn-action delete" (click)="deleteSetting(setting.id)" title="Supprimer">
+                      <fa-icon [icon]="faTrash"></fa-icon>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <div class="no-data-container">
+            <p>Aucun paramètre trouvé pour la catégorie {{ selectedCategory }}.</p>
+            @if (!showForm) {
+              <button class="btn-add" (click)="toggleForm()">
+                <fa-icon [icon]="faPlus"></fa-icon>
+                Ajouter un Paramètre
+              </button>
+            }
+          </div>
+        }
       </div>
     </div>
-
-    <ng-template #loadingTemplate>
-      <div class="loading-container">
-        <div class="spinner"></div>
-        <p>Chargement des paramètres...</p>
-      </div>
-    </ng-template>
-
-    <ng-template #noSettings>
-      <div class="no-data-container">
-        <p>Aucun paramètre trouvé pour la catégorie {{ selectedCategory }}.</p>
-        <button class="btn-add" (click)="toggleForm()" *ngIf="!showForm">
-          <fa-icon [icon]="faPlus"></fa-icon>
-          Ajouter un Paramètre
-        </button>
-      </div>
-    </ng-template>
-  </div>
+  } @else {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Chargement des paramètres...</p>
+    </div>
+  }
+</div>

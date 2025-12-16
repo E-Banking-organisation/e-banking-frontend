@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { Currency } from '../models/currency.model';
@@ -7,13 +7,15 @@ import { Currency } from '../models/currency.model';
   providedIn: 'root'
 })
 export class CurrencyService {
+  private http = inject(HttpClient);
+
   private mockCurrencies: Currency[] = [
     {
       id: '1',
       code: 'MAD',
       name: 'Moroccan Dirham',
       symbol: 'د.م.',
-      exchangeRate: 1.0, // Base currency
+      exchangeRate: 1.0,
       isActive: true,
       createdAt: new Date('2023-01-15'),
       updatedAt: new Date('2023-01-15')
@@ -70,21 +72,16 @@ export class CurrencyService {
     },
   ];
 
-  constructor(private http: HttpClient) { }
-
   getAllCurrencies(): Observable<Currency[]> {
-    // Mock implementation
     return of(this.mockCurrencies);
   }
 
   getCurrencyById(id: string): Observable<Currency | undefined> {
-    // Mock implementation
     const currency = this.mockCurrencies.find(c => c.id === id);
     return of(currency);
   }
 
   createCurrency(currency: Omit<Currency, 'id' | 'createdAt' | 'updatedAt'>): Observable<Currency> {
-    // Mock implementation
     const newCurrency: Currency = {
       ...currency,
       id: (this.mockCurrencies.length + 1).toString(),
@@ -97,7 +94,6 @@ export class CurrencyService {
   }
 
   updateCurrency(id: string, updates: Partial<Currency>): Observable<Currency | undefined> {
-    // Mock implementation
     const index = this.mockCurrencies.findIndex(c => c.id === id);
     if (index !== -1) {
       this.mockCurrencies[index] = {
@@ -111,7 +107,6 @@ export class CurrencyService {
   }
 
   deleteCurrency(id: string): Observable<boolean> {
-    // Mock implementation
     const initialLength = this.mockCurrencies.length;
     this.mockCurrencies = this.mockCurrencies.filter(c => c.id !== id);
     return of(initialLength > this.mockCurrencies.length);

@@ -1,11 +1,11 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AgentService } from '../../core/services/agent.service';
 import { Agent } from '../../core/models/agent.model';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { faEdit, faTrash, faPlus, faTimes, faKey, faUserCheck, faUserSlash, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
-import {AuthService} from '../../../auth/services/auth.service';
+import { faEdit, faTrash, faPlus, faTimes, faKey, faUserCheck, faUserSlash } from '@fortawesome/free-solid-svg-icons';
+import { AuthService } from '../../../auth/services/auth.service';
 
 @Component({
   selector: 'app-agent-management',
@@ -15,6 +15,11 @@ import {AuthService} from '../../../auth/services/auth.service';
   styleUrls: ['./agent-management.component.css']
 })
 export class AgentManagementComponent implements OnInit {
+  private agentService = inject(AgentService);
+  private authService = inject(AuthService);
+  private fb = inject(FormBuilder);
+  private cdr = inject(ChangeDetectorRef);
+
   agents: Agent[] = [];
   isLoading: boolean = true;
   errorMessage: string | null = null;
@@ -35,12 +40,7 @@ export class AgentManagementComponent implements OnInit {
   faUserCheck = faUserCheck;
   faUserSlash = faUserSlash;
 
-  constructor(
-    private agentService: AgentService,
-    private authService: AuthService,
-    private fb: FormBuilder,
-    private cdr: ChangeDetectorRef
-  ) {
+  constructor() {
     this.agentForm = this.fb.group({
       prenom: ['', Validators.required],
       nom: ['', Validators.required],
@@ -65,7 +65,6 @@ export class AgentManagementComponent implements OnInit {
     });
   }
 
-
   loadAgents(): void {
     this.isLoading = true;
     this.errorMessage = null;
@@ -73,7 +72,7 @@ export class AgentManagementComponent implements OnInit {
       next: (agents) => {
         this.agents = agents;
         this.isLoading = false;
-        this.cdr.markForCheck(); // Optimize change detection
+        this.cdr.markForCheck();
       },
       error: (error) => {
         console.error('Error loading agents:', {
@@ -94,7 +93,7 @@ export class AgentManagementComponent implements OnInit {
   }
 
   onSubmit(event?: Event): void {
-    if (event) event.preventDefault(); // Prevent default form submission
+    if (event) event.preventDefault();
     console.log('ngSubmit or test button triggered, form value:', this.agentForm.value);
     console.log('Form valid:', this.agentForm.valid);
     if (this.agentForm.invalid) {
@@ -106,7 +105,6 @@ export class AgentManagementComponent implements OnInit {
     const formValue = this.agentForm.value;
 
     if (this.isEditing && this.currentAgentId) {
-      // Update existing agent
       this.agentService.updateAgent(this.currentAgentId, formValue).subscribe({
         next: (updatedAgent) => {
           console.log('Agent updated:', updatedAgent);
@@ -120,7 +118,6 @@ export class AgentManagementComponent implements OnInit {
         error: (error) => console.error('Error updating agent:', error)
       });
     } else {
-      // Create new agent
       this.agentService.createAgent(formValue).subscribe({
         next: (newAgent) => {
           console.log('Agent created:', newAgent);
@@ -132,6 +129,7 @@ export class AgentManagementComponent implements OnInit {
       });
     }
   }
+
   onFormSubmit(event: Event): void {
     console.log('Form submit event triggered', event);
   }
@@ -220,17 +218,15 @@ export class AgentManagementComponent implements OnInit {
   getFilteredAgents(): Agent[] {
     let result = this.agents;
 
-    // Filter by status if not "ALL"
     if (this.statusFilter !== 'ALL') {
       result = result.filter(agent => {
-        if (this.statusFilter === 'ACTIVE') return agent.etat === true;
-        if (this.statusFilter === 'INACTIVE') return agent.etat === false;
-        if (this.statusFilter === 'SUSPENDED') return agent.etat === false; // Ajuster si le backend gère SUSPENDED
+        if (this.statusFilter === 'ACTIVE') return agent.etat === 'ACTIVE';
+        if (this.statusFilter === 'INACTIVE') return agent.etat === 'INACTIVE';
+        if (this.statusFilter === 'SUSPENDED') return agent.etat === 'SUSPENDED';
         return true;
       });
     }
 
-    // Then filter by search term if any
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase();
       result = result.filter(agent =>

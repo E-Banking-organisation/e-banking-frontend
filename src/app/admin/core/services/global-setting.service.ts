@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { GlobalSetting } from '../models/global-setting.model';
@@ -7,6 +7,8 @@ import { GlobalSetting } from '../models/global-setting.model';
   providedIn: 'root'
 })
 export class GlobalSettingService {
+  private http = inject(HttpClient);
+
   private mockSettings: GlobalSetting[] = [
     {
       id: '1',
@@ -80,46 +82,38 @@ export class GlobalSettingService {
     }
   ];
 
-  constructor(private http: HttpClient) { }
-
   getAllSettings(): Observable<GlobalSetting[]> {
-    // Mock implementation
     return of(this.mockSettings);
   }
 
   getSettingsByCategory(category: string): Observable<GlobalSetting[]> {
-    // Mock implementation
     const filteredSettings = this.mockSettings.filter(s => s.category === category);
     return of(filteredSettings);
   }
 
   getSettingById(id: string): Observable<GlobalSetting | undefined> {
-    // Mock implementation
     const setting = this.mockSettings.find(s => s.id === id);
     return of(setting);
   }
 
   getSettingByKey(key: string): Observable<GlobalSetting | undefined> {
-    // Mock implementation
     const setting = this.mockSettings.find(s => s.key === key);
     return of(setting);
   }
 
   createSetting(setting: Omit<GlobalSetting, 'id' | 'createdAt' | 'updatedAt'>): Observable<GlobalSetting> {
-    // Mock implementation
     const newSetting: GlobalSetting = {
       ...setting,
       id: (this.mockSettings.length + 1).toString(),
       createdAt: new Date(),
       updatedAt: new Date()
     };
-    
+
     this.mockSettings.push(newSetting);
     return of(newSetting);
   }
 
   updateSetting(id: string, updates: Partial<GlobalSetting>): Observable<GlobalSetting | undefined> {
-    // Mock implementation
     const index = this.mockSettings.findIndex(s => s.id === id);
     if (index !== -1) {
       this.mockSettings[index] = {
@@ -133,7 +127,6 @@ export class GlobalSettingService {
   }
 
   deleteSetting(id: string): Observable<boolean> {
-    // Mock implementation
     const initialLength = this.mockSettings.length;
     this.mockSettings = this.mockSettings.filter(s => s.id !== id);
     return of(initialLength > this.mockSettings.length);

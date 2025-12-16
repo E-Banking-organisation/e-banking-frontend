@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ClientService } from '../../core/services/client.service';
@@ -12,31 +12,26 @@ import { Client } from '../../core/models/client.model';
   styleUrl: './client-management.component.css'
 })
 export class ClientManagementComponent implements OnInit {
+  private clientService = inject(ClientService);
+  private fb = inject(FormBuilder);
+
   clients: Client[] = [];
   filteredClients: Client[] = [];
   selectedClient: Client | null = null;
 
-  // Filters
   searchQuery: string = '';
   statusFilter: string = 'all';
 
-  // Form
   clientForm: FormGroup;
   showClientModal: boolean = false;
   isEditMode: boolean = false;
   isSubmitting: boolean = false;
 
   isLoading: boolean = true;
+  activeDropdown: string | null = null;
 
-  constructor(
-    private clientService: ClientService,
-    private fb: FormBuilder
-  ) {
+  constructor() {
     this.clientForm = this.createClientForm();
-  }
-
-  ngOnInit(): void {
-    this.loadClients();
   }
 
   createClientForm(): FormGroup {
@@ -51,6 +46,10 @@ export class ClientManagementComponent implements OnInit {
       dateOfBirth: [''],
       status: ['active']
     });
+  }
+
+  ngOnInit(): void {
+    this.loadClients();
   }
 
   loadClients(): void {
@@ -75,7 +74,6 @@ export class ClientManagementComponent implements OnInit {
   applyFilters(): void {
     let result = [...this.clients];
 
-    // Apply search query if any
     if (this.searchQuery && this.searchQuery.trim() !== '') {
       const query = this.searchQuery.toLowerCase().trim();
       result = result.filter(client =>
@@ -87,7 +85,6 @@ export class ClientManagementComponent implements OnInit {
       );
     }
 
-    // Apply status filter if not 'all'
     if (this.statusFilter !== 'all') {
       result = result.filter(client => client.status === this.statusFilter);
     }
@@ -103,7 +100,7 @@ export class ClientManagementComponent implements OnInit {
 
   showAddClientModal(): void {
     this.isEditMode = false;
-    this.clientForm.reset({status: 'active'});
+    this.clientForm.reset({ status: 'active' });
     this.showClientModal = true;
   }
 
@@ -111,7 +108,6 @@ export class ClientManagementComponent implements OnInit {
     this.isEditMode = true;
     this.clientForm.patchValue(client);
 
-    // Convert dateOfBirth to the format expected by input type="date"
     if (client.dateOfBirth) {
       const date = new Date(client.dateOfBirth);
       this.clientForm.patchValue({
@@ -120,13 +116,11 @@ export class ClientManagementComponent implements OnInit {
     }
 
     this.showClientModal = true;
-
-    // If we were viewing client details, close that modal
     this.selectedClient = null;
   }
 
-  viewClient(id: string): void {
-    this.clientService.getClientById(id).subscribe(
+  viewClient(clientId: string): void {
+    this.clientService.getClientById(clientId).subscribe(
       client => {
         if (client) {
           this.selectedClient = client;
@@ -146,7 +140,6 @@ export class ClientManagementComponent implements OnInit {
 
   saveClient(): void {
     if (this.clientForm.invalid) {
-      // Mark all fields as touched to display validation errors
       Object.keys(this.clientForm.controls).forEach(field => {
         const control = this.clientForm.get(field);
         control?.markAsTouched();
@@ -158,12 +151,11 @@ export class ClientManagementComponent implements OnInit {
     const clientData = this.clientForm.value;
 
     if (this.isEditMode) {
-      // Update existing client
-      const id = clientData.id;
-      this.clientService.updateClient(id, clientData).subscribe(
+      const clientId = clientData.id;
+      this.clientService.updateClient(clientId, clientData).subscribe(
         updatedClient => {
           if (updatedClient) {
-            this.clients = this.clients.map(c => c.id === id ? updatedClient : c);
+            this.clients = this.clients.map(c => c.id === clientId ? updatedClient : c);
             this.applyFilters();
             this.showClientModal = false;
           }
@@ -175,9 +167,8 @@ export class ClientManagementComponent implements OnInit {
         }
       );
     } else {
-      // Create new client
-      const { id, ...newClientData } = clientData; // Remove id as it will be generated
-      this.clientService.createClient(newClientData).subscribe(
+      // Suppression de la variable 'id' non utilisée
+      this.clientService.createClient(clientData).subscribe(
         newClient => {
           this.clients.push(newClient);
           this.applyFilters();
@@ -197,24 +188,24 @@ export class ClientManagementComponent implements OnInit {
     return !!(field && field.invalid && (field.touched || field.dirty));
   }
 
-  activateClient(id: string): void {
+  activateClient(clientId: string): void {
     if (confirm('Êtes-vous sûr de vouloir activer ce client?')) {
-      this.updateClientStatus(id, 'active');
+      this.updateClientStatus(clientId, 'active');
     }
   }
 
-  suspendClient(id: string): void {
+  suspendClient(clientId: string): void {
     if (confirm('Êtes-vous sûr de vouloir suspendre ce client?')) {
-      this.updateClientStatus(id, 'suspended');
+      this.updateClientStatus(clientId, 'suspended');
     }
   }
 
-  deleteClient(id: string): void {
+  deleteClient(clientId: string): void {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce client? Cette action est irréversible.')) {
-      this.clientService.deleteClient(id).subscribe(
+      this.clientService.deleteClient(clientId).subscribe(
         success => {
           if (success) {
-            this.clients = this.clients.filter(c => c.id !== id);
+            this.clients = this.clients.filter(c => c.id !== clientId);
             this.applyFilters();
           }
         },
@@ -223,15 +214,14 @@ export class ClientManagementComponent implements OnInit {
     }
   }
 
-  private updateClientStatus(id: string, status: 'active' | 'pending' | 'suspended' | 'closed'): void {
-    this.clientService.updateClient(id, { status }).subscribe(
+  private updateClientStatus(clientId: string, status: 'active' | 'pending' | 'suspended' | 'closed'): void {
+    this.clientService.updateClient(clientId, { status }).subscribe(
       updatedClient => {
         if (updatedClient) {
-          this.clients = this.clients.map(c => c.id === id ? updatedClient : c);
+          this.clients = this.clients.map(c => c.id === clientId ? updatedClient : c);
           this.applyFilters();
 
-          // Update selected client if open
-          if (this.selectedClient && this.selectedClient.id === id) {
+          if (this.selectedClient && this.selectedClient.id === clientId) {
             this.selectedClient = updatedClient;
           }
         }
@@ -239,7 +229,6 @@ export class ClientManagementComponent implements OnInit {
       error => console.error(`Error updating client status to ${status}:`, error)
     );
   }
-  activeDropdown: string | null = null;
 
   toggleDropdown(clientId: string): void {
     if (this.activeDropdown === clientId) {
@@ -249,10 +238,10 @@ export class ClientManagementComponent implements OnInit {
     }
   }
 
-  // Close dropdown when clicking outside
   @HostListener('document:click', ['$event'])
-  clickOutside(event: any): void {
-    if (!event.target.closest('.dropdown')) {
+  clickOutside(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.dropdown')) {
       this.activeDropdown = null;
     }
   }

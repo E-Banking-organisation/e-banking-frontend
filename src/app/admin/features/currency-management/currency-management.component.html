@@ -1,23 +1,24 @@
 <div class="currency-management-container">
-    <div class="header">
-      <div class="title-section">
-        <h1>Gestion des Devises</h1>
-        <p>Configurez et gérez les devises supportées par le système bancaire</p>
-      </div>
-
-      <div class="actions">
-        <div class="search-bar">
-          <input type="text" [(ngModel)]="searchTerm" placeholder="Rechercher une devise...">
-        </div>
-        <button class="btn-add" (click)="toggleForm()">
-          <fa-icon [icon]="showForm ? faTimes : faPlus"></fa-icon>
-          {{ showForm ? 'Annuler' : 'Ajouter une Devise' }}
-        </button>
-      </div>
+  <div class="header">
+    <div class="title-section">
+      <h1>Gestion des Devises</h1>
+      <p>Configurez et gérez les devises supportées par le système bancaire</p>
     </div>
 
-    <!-- Currency Form -->
-    <div class="form-container" *ngIf="showForm">
+    <div class="actions">
+      <div class="search-bar">
+        <input type="text" [(ngModel)]="searchTerm" placeholder="Rechercher une devise...">
+      </div>
+      <button class="btn-add" (click)="toggleForm()">
+        <fa-icon [icon]="showForm ? faTimes : faPlus"></fa-icon>
+        {{ showForm ? 'Annuler' : 'Ajouter une Devise' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Currency Form -->
+  @if (showForm) {
+    <div class="form-container">
       <div class="form-card">
         <h2>{{ isEditing ? 'Modifier la Devise' : 'Ajouter une Nouvelle Devise' }}</h2>
 
@@ -26,33 +27,41 @@
             <div class="form-group">
               <label for="code">Code</label>
               <input type="text" id="code" formControlName="code" placeholder="Ex: USD" maxlength="3">
-              <div class="error-message" *ngIf="currencyForm.get('code')?.invalid && currencyForm.get('code')?.touched">
-                Le code est requis (3 caractères max)
-              </div>
+              @if (currencyForm.get('code')?.invalid && currencyForm.get('code')?.touched) {
+                <div class="error-message">
+                  Le code est requis (3 caractères max)
+                </div>
+              }
             </div>
 
             <div class="form-group">
               <label for="name">Nom</label>
               <input type="text" id="name" formControlName="name" placeholder="Ex: US Dollar">
-              <div class="error-message" *ngIf="currencyForm.get('name')?.invalid && currencyForm.get('name')?.touched">
-                Le nom est requis
-              </div>
+              @if (currencyForm.get('name')?.invalid && currencyForm.get('name')?.touched) {
+                <div class="error-message">
+                  Le nom est requis
+                </div>
+              }
             </div>
 
             <div class="form-group">
               <label for="symbol">Symbole</label>
               <input type="text" id="symbol" formControlName="symbol" placeholder="Ex: $">
-              <div class="error-message" *ngIf="currencyForm.get('symbol')?.invalid && currencyForm.get('symbol')?.touched">
-                Le symbole est requis
-              </div>
+              @if (currencyForm.get('symbol')?.invalid && currencyForm.get('symbol')?.touched) {
+                <div class="error-message">
+                  Le symbole est requis
+                </div>
+              }
             </div>
 
             <div class="form-group">
               <label for="exchangeRate">Taux de Change</label>
               <input type="number" id="exchangeRate" formControlName="exchangeRate" placeholder="Ex: 1.0" step="0.001">
-              <div class="error-message" *ngIf="currencyForm.get('exchangeRate')?.invalid && currencyForm.get('exchangeRate')?.touched">
-                Le taux de change doit être supérieur à 0
-              </div>
+              @if (currencyForm.get('exchangeRate')?.invalid && currencyForm.get('exchangeRate')?.touched) {
+                <div class="error-message">
+                  Le taux de change doit être supérieur à 0
+                </div>
+              }
             </div>
 
             <div class="form-group checkbox">
@@ -72,11 +81,14 @@
         </form>
       </div>
     </div>
+  }
 
-    <!-- Currencies List -->
-    <div class="currencies-list" *ngIf="!isLoading; else loadingTemplate">
-      <table *ngIf="getFilteredCurrencies().length > 0; else noCurrencies">
-        <thead>
+  <!-- Currencies List -->
+  @if (!isLoading) {
+    <div class="currencies-list">
+      @if (getFilteredCurrencies().length > 0) {
+        <table>
+          <thead>
           <tr>
             <th>Code</th>
             <th>Nom</th>
@@ -86,49 +98,51 @@
             <th>Dernière Mise à jour</th>
             <th>Actions</th>
           </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let currency of getFilteredCurrencies()">
-            <td data-label="Code"><strong>{{ currency.code }}</strong></td>
-            <td data-label="Nom">{{ currency.name }}</td>
-            <td data-label="Symbole">{{ currency.symbol }}</td>
-            <td data-label="Taux de change">{{ currency.exchangeRate }}</td>
-            <td data-label="statut">
-              <span class="status-badge" [class.active]="currency.isActive" [class.inactive]="!currency.isActive">
-                {{ currency.isActive ? 'Actif' : 'Inactif' }}
-              </span>
-            </td>
-            <td data-label="Dernière Mise à jour">{{ formatDate(currency.updatedAt) }}</td>
-            <td data-label="Actions" class="actions-cell">
-              <button class="btn-action edit" (click)="editCurrency(currency)" title="Modifier">
-                <fa-icon [icon]="faEdit"></fa-icon>
-              </button>
-              <button class="btn-action toggle" (click)="toggleCurrencyStatus(currency)" title="{{ currency.isActive ? 'Désactiver' : 'Activer' }}">
-                <fa-icon [icon]="currency.isActive ? faTimes : faCheck"></fa-icon>
-              </button>
-              <button class="btn-action delete" (click)="deleteCurrency(currency.id)" title="Supprimer">
-                <fa-icon [icon]="faTrash"></fa-icon>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            @for (currency of getFilteredCurrencies(); track currency.id) {
+              <tr>
+                <td data-label="Code"><strong>{{ currency.code }}</strong></td>
+                <td data-label="Nom">{{ currency.name }}</td>
+                <td data-label="Symbole">{{ currency.symbol }}</td>
+                <td data-label="Taux de change">{{ currency.exchangeRate }}</td>
+                <td data-label="statut">
+                    <span class="status-badge" [class.active]="currency.isActive" [class.inactive]="!currency.isActive">
+                      {{ currency.isActive ? 'Actif' : 'Inactif' }}
+                    </span>
+                </td>
+                <td data-label="Dernière Mise à jour">{{ formatDate(currency.updatedAt) }}</td>
+                <td data-label="Actions" class="actions-cell">
+                  <button class="btn-action edit" (click)="editCurrency(currency)" title="Modifier">
+                    <fa-icon [icon]="faEdit"></fa-icon>
+                  </button>
+                  <button class="btn-action toggle" (click)="toggleCurrencyStatus(currency)" title="{{ currency.isActive ? 'Désactiver' : 'Activer' }}">
+                    <fa-icon [icon]="currency.isActive ? faTimes : faCheck"></fa-icon>
+                  </button>
+                  <button class="btn-action delete" (click)="deleteCurrency(currency.id)" title="Supprimer">
+                    <fa-icon [icon]="faTrash"></fa-icon>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <div class="no-data-container">
+          <p>Aucune devise trouvée.</p>
+          @if (!showForm) {
+            <button class="btn-add" (click)="toggleForm()">
+              <fa-icon [icon]="faPlus"></fa-icon>
+              Ajouter une Devise
+            </button>
+          }
+        </div>
+      }
     </div>
-
-    <ng-template #loadingTemplate>
-      <div class="loading-container">
-        <div class="spinner"></div>
-        <p>Chargement des devises...</p>
-      </div>
-    </ng-template>
-
-    <ng-template #noCurrencies>
-      <div class="no-data-container">
-        <p>Aucune devise trouvée.</p>
-        <button class="btn-add" (click)="toggleForm()" *ngIf="!showForm">
-          <fa-icon [icon]="faPlus"></fa-icon>
-          Ajouter une Devise
-        </button>
-      </div>
-    </ng-template>
-  </div>
+  } @else {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Chargement des devises...</p>
+    </div>
+  }
+</div>

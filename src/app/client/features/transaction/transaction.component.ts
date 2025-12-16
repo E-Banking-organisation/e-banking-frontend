@@ -86,8 +86,8 @@ export class TransactionComponent implements OnChanges {
       this.transactions,
       this.dateFrom,
       this.dateTo,
-      this.amountMin,
-      this.amountMax,
+      this.amountMin ?? undefined,
+      this.amountMax ?? undefined,
       this.transactionType
     );
 

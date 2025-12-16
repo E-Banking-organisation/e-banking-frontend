@@ -1,42 +1,44 @@
-import { Component, Inject, OnInit, HostListener, PLATFORM_ID, ViewChild } from '@angular/core';
+import { Component, OnInit, HostListener, PLATFORM_ID, ViewChild, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { isPlatformBrowser, NgClass, NgIf } from '@angular/common';
+import { isPlatformBrowser, NgClass } from '@angular/common';
 import { AgentSidebarComponent } from '../shared/agent-sidebar/agent-sidebar.component';
 
 @Component({
   selector: 'app-agent-layout',
   standalone: true,
-  imports: [RouterOutlet, AgentSidebarComponent, NgClass, NgIf],
+  imports: [RouterOutlet, AgentSidebarComponent, NgClass],
   templateUrl: './agent-layout.component.html',
   styleUrls: ['./agent-layout.component.css']
 })
 export class AgentLayoutComponent implements OnInit {
+  private platformId = inject(PLATFORM_ID);
+
+  @ViewChild(AgentSidebarComponent) sidenavComponent!: AgentSidebarComponent;
+
   isMobile = false;
   sideNavCompact = false;
   mobileMenuOpen = false;
 
-  private resizeTimeout: any;
+  private resizeTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
-
-  ngOnInit() {
+  ngOnInit(): void {
     this.updateLayout();
   }
 
-  @ViewChild(AgentSidebarComponent) sidenavComponent!: AgentSidebarComponent;
-
-  openSideNav() {
+  openSideNav(): void {
     this.sidenavComponent.toggleSideNav();
   }
 
   @HostListener('window:resize')
-  onResize() {
+  onResize(): void {
     if (!isPlatformBrowser(this.platformId)) return;
-    clearTimeout(this.resizeTimeout);
+    if (this.resizeTimeout) {
+      clearTimeout(this.resizeTimeout);
+    }
     this.resizeTimeout = setTimeout(() => this.updateLayout(), 200);
   }
 
-  updateLayout() {
+  updateLayout(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     const width = window.innerWidth;
     this.isMobile = width <= 768;
@@ -60,7 +62,7 @@ export class AgentLayoutComponent implements OnInit {
     this.onMobileMenuToggled(this.mobileMenuOpen);
   }
 
-  getContainerClasses() {
+  getContainerClasses(): Record<string, boolean> {
     return {
       'compact-mode': this.sideNavCompact,
       'mobile-menu-open': this.mobileMenuOpen,

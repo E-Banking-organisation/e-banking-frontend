@@ -57,3 +57,17 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## CI/CD Frontend
+
+Le frontend Angular est intégré dans un pipeline CI/CD basé sur GitHub Actions.
+
+### Étapes du pipeline :
+- Installation des dépendances
+- Lint du code
+- Build Angular
+- Tests unitaires
+- Construction de l’image Docker
+- Déploiement conditionnel (branche main)
+
+Cette approche garantit la qualité, la stabilité et la reproductibilité du frontend dans une architecture microservices.

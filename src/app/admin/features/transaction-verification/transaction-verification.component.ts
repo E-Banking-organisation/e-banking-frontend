@@ -1,25 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TransactionVerificationService } from '../../core/services/transaction-verification.service';
 import { Transaction } from '../../core/models/transaction.model';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-// Importez les icônes solid
-import { 
-  faCheckCircle, 
-  faTimesCircle, 
-  faEye, 
-  faFilter, 
-  faExchangeAlt, 
+import {
+  faCheckCircle,
+  faTimesCircle,
+  faEye,
+  faFilter,
+  faExchangeAlt,
   faFlag,
   faMoneyBillWave,
   faArrowUp,
   faArrowDown,
   faWallet,
-  faMobileAlt
+  faMobileAlt,
+  IconDefinition
 } from '@fortawesome/free-solid-svg-icons';
-
-// Importez faBitcoin depuis free-brands-icons
 import { faBitcoin } from '@fortawesome/free-brands-svg-icons';
 
 @Component({
@@ -30,6 +28,9 @@ import { faBitcoin } from '@fortawesome/free-brands-svg-icons';
   styleUrls: ['./transaction-verification.component.css']
 })
 export class TransactionVerificationComponent implements OnInit {
+  private transactionService = inject(TransactionVerificationService);
+  private fb = inject(FormBuilder);
+
   transactions: Transaction[] = [];
   filteredTransactions: Transaction[] = [];
   isLoading: boolean = true;
@@ -37,9 +38,9 @@ export class TransactionVerificationComponent implements OnInit {
   currentTransaction: Transaction | null = null;
   searchTerm: string = '';
   filterStatus: string = 'FLAGGED';
-  
+
   rejectForm: FormGroup;
-  
+
   // Icons
   faCheckCircle = faCheckCircle;
   faTimesCircle = faTimesCircle;
@@ -54,10 +55,7 @@ export class TransactionVerificationComponent implements OnInit {
   faMobileAlt = faMobileAlt;
   faBitcoin = faBitcoin;
 
-  constructor(
-    private transactionService: TransactionVerificationService,
-    private fb: FormBuilder
-  ) {
+  constructor() {
     this.rejectForm = this.fb.group({
       reason: ['', [Validators.required, Validators.minLength(10)]]
     });
@@ -83,16 +81,14 @@ export class TransactionVerificationComponent implements OnInit {
   }
 
   applyFilters(): void {
-    // Filter by status
     let result = this.transactions;
     if (this.filterStatus !== 'ALL') {
       result = result.filter(t => t.status === this.filterStatus);
     }
-    
-    // Filter by search term if any
+
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase();
-      result = result.filter(transaction => 
+      result = result.filter(transaction =>
         transaction.id.toLowerCase().includes(term) ||
         transaction.transactionType.toLowerCase().includes(term) ||
         (transaction.sourceAccountNumber && transaction.sourceAccountNumber.includes(term)) ||
@@ -100,7 +96,7 @@ export class TransactionVerificationComponent implements OnInit {
         (transaction.description && transaction.description.toLowerCase().includes(term))
       );
     }
-    
+
     this.filteredTransactions = result;
   }
 
@@ -115,9 +111,8 @@ export class TransactionVerificationComponent implements OnInit {
 
   verifyTransaction(transaction: Transaction): void {
     if (confirm('Êtes-vous sûr de vouloir approuver cette transaction ?')) {
-      // Mock admin ID for this example
       const adminId = 'admin-123';
-      
+
       this.transactionService.verifyTransaction(transaction.id, adminId).subscribe(
         verifiedTransaction => {
           if (verifiedTransaction) {
@@ -133,7 +128,7 @@ export class TransactionVerificationComponent implements OnInit {
       );
     }
   }
-  
+
   showRejectTransactionForm(transaction: Transaction): void {
     this.currentTransaction = transaction;
     this.showRejectForm = true;
@@ -142,11 +137,10 @@ export class TransactionVerificationComponent implements OnInit {
 
   rejectTransaction(): void {
     if (this.rejectForm.invalid || !this.currentTransaction) return;
-    
-    // Mock admin ID for this example
+
     const adminId = 'admin-123';
     const reason = this.rejectForm.value.reason;
-    
+
     this.transactionService.rejectTransaction(this.currentTransaction.id, adminId, reason).subscribe(
       rejectedTransaction => {
         if (rejectedTransaction) {
@@ -167,7 +161,7 @@ export class TransactionVerificationComponent implements OnInit {
     this.showRejectForm = false;
   }
 
-  getTransactionIcon(type: string): any {
+  getTransactionIcon(type: string): IconDefinition {
     switch(type) {
       case 'TRANSFER':
         return this.faExchangeAlt;
@@ -209,8 +203,8 @@ export class TransactionVerificationComponent implements OnInit {
   }
 
   formatAmount(amount: number, currency: string): string {
-    return new Intl.NumberFormat('fr-MA', { 
-      style: 'currency', 
+    return new Intl.NumberFormat('fr-MA', {
+      style: 'currency',
       currency: currency,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2

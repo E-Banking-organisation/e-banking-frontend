@@ -5,7 +5,7 @@ export interface Agent {
   email: string;
   telephone?: string;
   role: 'AGENT' | 'SUPERVISOR';
-  etat: boolean;
+  etat: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
   dateCreation: Date;
   codeAgence?: string;
   lastLogin?: Date; // Non présent dans le backend

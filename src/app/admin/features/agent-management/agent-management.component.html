@@ -36,7 +36,6 @@
     >
       Inactifs
     </button>
-    <!-- Note: Le backend ne gère pas 'SUSPENDED', donc on peut omettre ce filtre ou ajuster le backend -->
     <button
       [class.active]="statusFilter === 'SUSPENDED'"
       (click)="filterByStatus('SUSPENDED')"
@@ -46,152 +45,157 @@
   </div>
 
   <!-- Agent Form -->
-  <div class="form-container" *ngIf="showForm">
-    <div class="form-card">
-      <h2>{{ isEditing ? 'Modifier l\'Agent' : 'Ajouter un Nouvel Agent' }}</h2>
+  @if (showForm) {
+    <div class="form-container">
+      <div class="form-card">
+        <h2>{{ isEditing ? 'Modifier l\'Agent' : 'Ajouter un Nouvel Agent' }}</h2>
 
-      <form [formGroup]="agentForm">
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="prenom">Prénom</label>
-            <input type="text" id="prenom" formControlName="prenom" placeholder="Prénom">
-            <div class="error-message" *ngIf="agentForm.get('prenom')?.invalid && agentForm.get('prenom')?.touched">
-              Le prénom est requis
+        <form [formGroup]="agentForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="prenom">Prénom</label>
+              <input type="text" id="prenom" formControlName="prenom" placeholder="Prénom">
+              @if (agentForm.get('prenom')?.invalid && agentForm.get('prenom')?.touched) {
+                <div class="error-message">Le prénom est requis</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="nom">Nom</label>
+              <input type="text" id="nom" formControlName="nom" placeholder="Nom">
+              @if (agentForm.get('nom')?.invalid && agentForm.get('nom')?.touched) {
+                <div class="error-message">Le nom est requis</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" formControlName="email" placeholder="email@ebank.com">
+              @if (agentForm.get('email')?.invalid && agentForm.get('email')?.touched) {
+                <div class="error-message">Un email valide est requis</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="telephone">Téléphone</label>
+              <input type="text" id="telephone" formControlName="telephone" placeholder="Ex: +212-664-555-123">
+            </div>
+
+            <div class="form-group">
+              <label for="role">Rôle</label>
+              <select id="role" formControlName="role">
+                <option value="AGENT">Agent</option>
+                <option value="SUPERVISOR">Superviseur</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="etat">Statut</label>
+              <select id="etat" formControlName="etat">
+                <option [ngValue]="true">Actif</option>
+                <option [ngValue]="false">Inactif</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="codeAgence">Code Agence</label>
+              <input type="text" id="codeAgence" formControlName="codeAgence" placeholder="Ex: B001">
+              @if (agentForm.get('codeAgence')?.invalid && agentForm.get('codeAgence')?.touched) {
+                <div class="error-message">Le code d'agence est requis</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="branchName">Nom Agence (Optionnel)</label>
+              <input type="text" id="branchName" formControlName="branchName" placeholder="Ex: Casablanca Main">
             </div>
           </div>
 
-          <div class="form-group">
-            <label for="nom">Nom</label>
-            <input type="text" id="nom" formControlName="nom" placeholder="Nom">
-            <div class="error-message" *ngIf="agentForm.get('nom')?.invalid && agentForm.get('nom')?.touched">
-              Le nom est requis
-            </div>
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" (click)="resetForm()">Annuler</button>
+            <button type="button" class="btn-submit" (click)="onSubmit()" [disabled]="agentForm.invalid">
+              {{ isEditing ? 'Mettre à Jour' : 'Ajouter' }}
+            </button>
           </div>
-
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" formControlName="email" placeholder="email@ebank.com">
-            <div class="error-message" *ngIf="agentForm.get('email')?.invalid && agentForm.get('email')?.touched">
-              Un email valide est requis
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="telephone">Téléphone</label>
-            <input type="text" id="telephone" formControlName="telephone" placeholder="Ex: +212-664-555-123">
-          </div>
-
-          <div class="form-group">
-            <label for="role">Rôle</label>
-            <select id="role" formControlName="role">
-              <option value="AGENT">Agent</option>
-              <option value="SUPERVISOR">Superviseur</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="etat">Statut</label>
-            <select id="etat" formControlName="etat">
-              <option [ngValue]="true">Actif</option>
-              <option [ngValue]="false">Inactif</option>
-              <!-- Note: 'SUSPENDED' n'est pas géré par le backend, à ajuster si nécessaire -->
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="codeAgence">Code Agence</label>
-            <input type="text" id="codeAgence" formControlName="codeAgence" placeholder="Ex: B001">
-            <div class="error-message" *ngIf="agentForm.get('codeAgence')?.invalid && agentForm.get('codeAgence')?.touched">
-              Le code d'agence est requis
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="branchName">Nom Agence (Optionnel)</label>
-            <input type="text" id="branchName" formControlName="branchName" placeholder="Ex: Casablanca Main">
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button type="button" class="btn-cancel" (click)="resetForm()">Annuler</button>
-          <button type="button" class="btn-submit" (click)="onSubmit()" [disabled]="agentForm.invalid">
-            {{ isEditing ? 'Mettre à Jour' : 'Ajouter' }}
-          </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
-  </div>
+  }
 
   <!-- Agents List -->
-  <div class="agents-list" *ngIf="!isLoading; else loadingTemplate">
-    <table *ngIf="getFilteredAgents().length > 0; else noAgents">
-      <thead>
-      <tr>
-        <th>Agent</th>
-        <th>Email</th>
-        <th>Rôle</th>
-        <th>Agence</th>
-        <th>Statut</th>
-        <th>Dernière Connexion</th>
-        <th>Actions</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let agent of getFilteredAgents()">
-        <td data-label="Agent" class="agent-name">{{ agent.prenom }} {{ agent.nom }}</td>
-        <td data-label="Email">{{ agent.email }}</td>
-        <td data-label="Rôle">{{ agent.role === 'AGENT' ? 'Agent' : 'Superviseur' }}</td>
-        <td data-label="Agence">{{ agent.branchName || agent.codeAgence || 'N/A' }}</td>
-        <td data-label="Statut">
-            <span class="status-badge" [class]="agent.etat ? 'active' : 'inactive'">
-              {{ agent.etat ? 'Actif' : 'Inactif' }}
-            </span>
-        </td>
-        <td data-label="Dernière Connexion">{{ formatDate(agent.lastLogin) }}</td>
-        <td data-label="Actions" class="actions-cell">
-          <button class="btn-action edit" (click)="editAgent(agent)" title="Modifier">
-            <fa-icon [icon]="faEdit"></fa-icon>
-          </button>
+  @if (!isLoading) {
+    <div class="agents-list">
+      @if (getFilteredAgents().length > 0) {
+        <table>
+          <thead>
+          <tr>
+            <th>Agent</th>
+            <th>Email</th>
+            <th>Rôle</th>
+            <th>Agence</th>
+            <th>Statut</th>
+            <th>Dernière Connexion</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+            @for (agent of getFilteredAgents(); track agent.id) {
+              <tr>
+                <td data-label="Agent" class="agent-name">{{ agent.prenom }} {{ agent.nom }}</td>
+                <td data-label="Email">{{ agent.email }}</td>
+                <td data-label="Rôle">{{ agent.role === 'AGENT' ? 'Agent' : 'Superviseur' }}</td>
+                <td data-label="Agence">{{ agent.branchName || agent.codeAgence || 'N/A' }}</td>
+                <td data-label="Statut">
+                  <span class="status-badge" [class]="agent.etat ? 'active' : 'inactive'">
+                    {{ agent.etat ? 'Actif' : 'Inactif' }}
+                  </span>
+                </td>
+                <td data-label="Dernière Connexion">{{ formatDate(agent.lastLogin) }}</td>
+                <td data-label="Actions" class="actions-cell">
+                  <button class="btn-action edit" (click)="editAgent(agent)" title="Modifier">
+                    <fa-icon [icon]="faEdit"></fa-icon>
+                  </button>
 
-          <button class="btn-action reset" (click)="resetPassword(agent.id)" title="Réinitialiser mot de passe">
-            <fa-icon [icon]="faKey"></fa-icon>
-          </button>
+                  <button class="btn-action reset" (click)="resetPassword(agent.id)" title="Réinitialiser mot de passe">
+                    <fa-icon [icon]="faKey"></fa-icon>
+                  </button>
 
-          <ng-container *ngIf="!agent.etat">
-            <button class="btn-action activate" (click)="updateAgentStatus(agent, 'ACTIVE')" title="Activer">
-              <fa-icon [icon]="faUserCheck"></fa-icon>
+                  @if (!agent.etat) {
+                    <button class="btn-action activate" (click)="updateAgentStatus(agent, 'ACTIVE')" title="Activer">
+                      <fa-icon [icon]="faUserCheck"></fa-icon>
+                    </button>
+                  }
+
+                  @if (agent.etat) {
+                    <button class="btn-action deactivate" (click)="updateAgentStatus(agent, 'INACTIVE')" title="Désactiver">
+                      <fa-icon [icon]="faUserSlash"></fa-icon>
+                    </button>
+                  }
+
+                  <button class="btn-action delete" (click)="deleteAgent(agent.id)" title="Supprimer">
+                    <fa-icon [icon]="faTrash"></fa-icon>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <div class="no-data-container">
+          <p>Aucun agent trouvé pour le filtre sélectionné.</p>
+          @if (!showForm) {
+            <button class="btn-add" (click)="toggleForm()">
+              <fa-icon [icon]="faPlus"></fa-icon>
+              Ajouter un Agent
             </button>
-          </ng-container>
-
-          <ng-container *ngIf="agent.etat">
-            <button class="btn-action deactivate" (click)="updateAgentStatus(agent, 'INACTIVE')" title="Désactiver">
-              <fa-icon [icon]="faUserSlash"></fa-icon>
-            </button>
-          </ng-container>
-
-          <button class="btn-action delete" (click)="deleteAgent(agent.id)" title="Supprimer">
-            <fa-icon [icon]="faTrash"></fa-icon>
-          </button>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <ng-template #loadingTemplate>
+          }
+        </div>
+      }
+    </div>
+  } @else {
     <div class="loading-container">
       <div class="spinner"></div>
       <p>Chargement des agents...</p>
     </div>
-  </ng-template>
-
-  <ng-template #noAgents>
-    <div class="no-data-container">
-      <p>Aucun agent trouvé pour le filtre sélectionné.</p>
-      <button class="btn-add" (click)="toggleForm()" *ngIf="!showForm">
-        <fa-icon [icon]="faPlus"></fa-icon>
-        Ajouter un Agent
-      </button>
-    </div>
-  </ng-template>
+  }
 </div>

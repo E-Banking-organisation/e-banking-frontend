@@ -29,7 +29,7 @@
           <div class="account-info">
             <div class="account-type">{{ account.type || 'N/A' }}</div>
             <div class="account-number">{{ account.accountNumber ? (account.accountNumber | slice:0:4) + '...' + (account.accountNumber | slice:-4) : 'N/A' }}</div>
-            <div class="account-balance">{{ account.balance ?? 0 }} {{ account.currency || 'N/A' }}</div>
+            <div class="account-balance">{{ account.balance }} {{ account.currency || 'N/A' }}</div>
           </div>
           <div class="view-details">
             <fa-icon [icon]="faEye"></fa-icon>
@@ -59,7 +59,7 @@
           </div>
           <div class="account-detail">
             <span class="detail-label">Solde :</span>
-            <span>{{ selectedAccount.balance ?? 0 }} {{ selectedAccount.currency || 'N/A' }}</span>
+            <span>{{ selectedAccount.balance}} {{ selectedAccount.currency || 'N/A' }}</span>
           </div>
           <div class="account-detail">
             <span class="detail-label">Plafond :</span>

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { Transaction } from '../models/transaction.model';
@@ -7,6 +7,8 @@ import { Transaction } from '../models/transaction.model';
   providedIn: 'root'
 })
 export class TransactionVerificationService {
+  private http = inject(HttpClient);
+
   private mockTransactions: Transaction[] = [
     {
       id: 'T001',
@@ -94,33 +96,26 @@ export class TransactionVerificationService {
     }
   ];
 
-  constructor(private http: HttpClient) { }
-
   getAllTransactions(): Observable<Transaction[]> {
-    // Mock implementation
     return of(this.mockTransactions);
   }
 
   getFlaggedTransactions(): Observable<Transaction[]> {
-    // Mock implementation
     const flaggedTransactions = this.mockTransactions.filter(t => t.status === 'FLAGGED');
     return of(flaggedTransactions);
   }
 
   getPendingTransactions(): Observable<Transaction[]> {
-    // Mock implementation
     const pendingTransactions = this.mockTransactions.filter(t => t.status === 'PENDING');
     return of(pendingTransactions);
   }
 
   getTransactionById(id: string): Observable<Transaction | undefined> {
-    // Mock implementation
     const transaction = this.mockTransactions.find(t => t.id === id);
     return of(transaction);
   }
 
   verifyTransaction(id: string, adminId: string): Observable<Transaction | undefined> {
-    // Mock implementation
     const index = this.mockTransactions.findIndex(t => t.id === id);
     if (index !== -1) {
       this.mockTransactions[index] = {
@@ -135,7 +130,6 @@ export class TransactionVerificationService {
   }
 
   rejectTransaction(id: string, adminId: string, reason: string): Observable<Transaction | undefined> {
-    // Mock implementation
     const index = this.mockTransactions.findIndex(t => t.id === id);
     if (index !== -1) {
       this.mockTransactions[index] = {

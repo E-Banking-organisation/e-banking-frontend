@@ -136,20 +136,25 @@ export class RechargeComponent implements OnInit {
 
   // Validation
   validateMobileRecharge(): boolean {
-    return this.rechargeService.validateMobileRecharge(
+    let isValid = false;
+    this.rechargeService.validateMobileRecharge(
       this.mobileRechargeForm.operatorId,
       this.mobileRechargeForm.phoneNumber,
       this.mobileRechargeForm.amount,
       this.mobileRechargeForm.accountId
-    );
+    ).subscribe(result => isValid = result);
+    return isValid;
   }
 
   validateServiceRecharge(): boolean {
-    return this.rechargeService.validateServiceRecharge(
+    let isValid = false;
+    this.rechargeService.validateServiceRecharge(
       this.serviceRechargeForm.operatorId,
+      this.serviceRechargeForm.reference,
       this.serviceRechargeForm.amount,
       this.serviceRechargeForm.accountId
-    );
+    ).subscribe(result => isValid = result);
+    return isValid;
   }
 
   // Utilitaires d'affichage

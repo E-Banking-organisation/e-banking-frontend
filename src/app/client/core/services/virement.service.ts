@@ -89,4 +89,10 @@ export class VirementService {
     this.transfersSubject.next([...this.transfersSubject.value, newTransaction]);
     return of(true);
   }
+
+  getBeneficiaryName(id: number): string {
+    const b = this.beneficiariesSubject.value.find(b => b.id === id);
+    return b ? b.name : 'Inconnu';
+  }
+
 }

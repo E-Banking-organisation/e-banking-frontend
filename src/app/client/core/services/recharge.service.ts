@@ -8,7 +8,7 @@ import {AuthService} from '../../../auth/services/auth.service';
 @Injectable({
   providedIn: 'root'
 })
-export class MockRechargeService {
+export class RechargeService {
 
   private operators: Operator[] = [
     { id: 1, name: 'Orange', logo: '', type: 'mobile', category: 'telecom', url: '' },
@@ -50,4 +50,29 @@ export class MockRechargeService {
   processServiceRecharge(operatorId: number, reference: string, amount: number, accountId: number): Observable<boolean> {
     return this.processMobileRecharge(operatorId, reference, amount, accountId);
   }
+
+  getServices(): Observable<Operator[]> {
+    return this.getOperators();
+  }
+
+  getServiceCategories(): Observable<string[]> {
+    return of(['telecom', 'eau', 'électricité']);
+  }
+
+  validateMobileRecharge(operatorId: number, phone: string, amount: number, accountId: number): Observable<boolean> {
+    const account = this.accountService['accounts'].find(a => a.id === accountId);
+
+    const isValid = !!(account &&
+      account.balance >= amount &&
+      phone &&
+      phone.length > 0 &&
+      amount > 0);
+
+    return of(isValid);
+  }
+
+  validateServiceRecharge(operatorId: number, reference: string, amount: number, accountId: number): Observable<boolean> {
+    return this.processServiceRecharge(operatorId, reference, amount, accountId);
+  }
+
 }

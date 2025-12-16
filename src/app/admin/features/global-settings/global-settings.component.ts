@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { GlobalSettingService } from '../../core/services/global-setting.service';
@@ -14,6 +14,9 @@ import { faEdit, faTrash, faPlus, faTimes, faFilter, faSave } from '@fortawesome
   styleUrls: ['./global-settings.component.css']
 })
 export class GlobalSettingsComponent implements OnInit {
+  private globalSettingService = inject(GlobalSettingService);
+  private fb = inject(FormBuilder);
+
   settings: GlobalSetting[] = [];
   categories: string[] = ['ALL', 'SECURITY', 'TRANSACTION', 'NOTIFICATION', 'SYSTEM', 'OTHER'];
   selectedCategory: string = 'ALL';
@@ -22,9 +25,9 @@ export class GlobalSettingsComponent implements OnInit {
   isEditing: boolean = false;
   currentSettingId: string | null = null;
   searchTerm: string = '';
-  
+
   settingForm: FormGroup;
-  
+
   // Icons
   faEdit = faEdit;
   faTrash = faTrash;
@@ -33,10 +36,7 @@ export class GlobalSettingsComponent implements OnInit {
   faFilter = faFilter;
   faSave = faSave;
 
-  constructor(
-    private globalSettingService: GlobalSettingService,
-    private fb: FormBuilder
-  ) {
+  constructor() {
     this.settingForm = this.fb.group({
       key: ['', [Validators.required, Validators.pattern('[A-Z0-9_]+')]],
       value: ['', [Validators.required]],
@@ -66,11 +66,10 @@ export class GlobalSettingsComponent implements OnInit {
 
   onSubmit(): void {
     if (this.settingForm.invalid) return;
-    
+
     const formValue = this.settingForm.value;
-    
+
     if (this.isEditing && this.currentSettingId) {
-      // Update existing setting
       this.globalSettingService.updateSetting(this.currentSettingId, formValue).subscribe(
         updatedSetting => {
           const index = this.settings.findIndex(s => s.id === this.currentSettingId);
@@ -82,7 +81,6 @@ export class GlobalSettingsComponent implements OnInit {
         error => console.error('Error updating setting:', error)
       );
     } else {
-      // Create new setting
       this.globalSettingService.createSetting(formValue).subscribe(
         newSetting => {
           this.settings.push(newSetting);
@@ -97,7 +95,7 @@ export class GlobalSettingsComponent implements OnInit {
     this.isEditing = true;
     this.currentSettingId = setting.id;
     this.showForm = true;
-    
+
     this.settingForm.patchValue({
       key: setting.key,
       value: setting.value,
@@ -106,7 +104,6 @@ export class GlobalSettingsComponent implements OnInit {
       isEncrypted: setting.isEncrypted
     });
 
-    // Disable the key field if editing
     if (this.isEditing) {
       this.settingForm.get('key')?.disable();
     } else {
@@ -152,22 +149,20 @@ export class GlobalSettingsComponent implements OnInit {
 
   getFilteredSettings(): GlobalSetting[] {
     let result = this.settings;
-    
-    // Filter by category if not "ALL"
+
     if (this.selectedCategory !== 'ALL') {
       result = result.filter(setting => setting.category === this.selectedCategory);
     }
-    
-    // Then filter by search term if any
+
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase();
-      result = result.filter(setting => 
+      result = result.filter(setting =>
         setting.key.toLowerCase().includes(term) ||
         setting.value.toLowerCase().includes(term) ||
         setting.description.toLowerCase().includes(term)
       );
     }
-    
+
     return result;
   }
 

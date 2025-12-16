@@ -1,6 +1,6 @@
 <div class="nav-items" [class.open]="isMobileMenuOpen" [class.compact-mode]="isCompactMode">
   <div class="header-section">
-    <button class="toggle-button" (click)="toggleSideNav()">
+    <button class="toggle-button" (click)="toggleSideNav()" (keydown.enter)="toggleSideNav()" (keydown.space)="toggleSideNav()" [attr.aria-label]="'Basculer la barre latérale'">
       <fa-icon [icon]="faBars"></fa-icon>
     </button>
     <div class="brand">
@@ -33,25 +33,25 @@
     <span>Paramètres Globaux</span>
   </div>
 
-  <!-- Item de déconnexion -->
-  <div class="nav-item logout" (click)="openLogoutConfirm()">
+  <div class="nav-item logout" (click)="openLogoutConfirm()" (keydown.enter)="openLogoutConfirm()" (keydown.space)="openLogoutConfirm()" role="button" tabindex="0" [attr.aria-label]="'Déconnexion'">
     <fa-icon [icon]="faSignOutAlt"></fa-icon>
     <span>Déconnexion</span>
   </div>
 
-  <!-- Modal de confirmation de déconnexion -->
-  <div *ngIf="showLogoutConfirm" class="logout-confirm-overlay">
-    <div class="logout-confirm-modal">
-      <div class="logout-confirm-header">
-        <h3>Confirmation</h3>
-      </div>
-      <div class="logout-confirm-body">
-        <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
-      </div>
-      <div class="logout-confirm-footer">
-        <button class="cancel-btn" (click)="cancelLogout()">Annuler</button>
-        <button class="confirm-btn" (click)="confirmLogout()">Déconnecter</button>
+  @if (showLogoutConfirm) {
+    <div class="logout-confirm-overlay">
+      <div class="logout-confirm-modal">
+        <div class="logout-confirm-header">
+          <h3>Confirmation</h3>
+        </div>
+        <div class="logout-confirm-body">
+          <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
+        </div>
+        <div class="logout-confirm-footer">
+          <button class="cancel-btn" (click)="cancelLogout()">Annuler</button>
+          <button class="confirm-btn" (click)="confirmLogout()">Déconnecter</button>
+        </div>
       </div>
     </div>
-  </div>
+  }
 </div>

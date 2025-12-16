@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { Client } from '../models/client.model';
@@ -7,7 +7,8 @@ import { Client } from '../models/client.model';
   providedIn: 'root'
 })
 export class ClientService {
-  // This is a mock service for demonstration
+  private http = inject(HttpClient);
+
   private mockClients: Client[] = [
     {
       id: "client123",
@@ -32,8 +33,6 @@ export class ClientService {
       status: "pending"
     }
   ];
-
-  constructor(private http: HttpClient) { }
 
   getClients(): Observable<Client[]> {
     return of(this.mockClients);
