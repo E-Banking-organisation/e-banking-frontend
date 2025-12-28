@@ -119,7 +119,7 @@ export class AuthService {
       lastName: user.lastName,
 
       // Mock MFA
-      pinId: '123456',
+      pinId: '1234',
       phoneNumber: '+2126XXXXXXX'
     });
   }
@@ -129,7 +129,7 @@ export class AuthService {
   ======================= */
 
   verifyCode(code: string): Observable<VerifyResponse> {
-    if (code !== '123456') {
+    if (code !== '1234') {
       return throwError(() => new Error('Code invalide'));
     }
 
