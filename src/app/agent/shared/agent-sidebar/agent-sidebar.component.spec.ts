@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 import { AgentSidebarComponent } from './agent-sidebar.component';
 
 describe('AgentSidebarComponent', () => {
@@ -8,9 +9,17 @@ describe('AgentSidebarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AgentSidebarComponent]
-    })
-    .compileComponents();
+      imports: [AgentSidebarComponent],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            params: of({}),
+            snapshot: { params: {} }
+          }
+        }
+      ]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AgentSidebarComponent);
     component = fixture.componentInstance;

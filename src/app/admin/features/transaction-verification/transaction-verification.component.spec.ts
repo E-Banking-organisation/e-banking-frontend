@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { provideHttpClient } from '@angular/common/http';
 import { TransactionVerificationComponent } from './transaction-verification.component';
 
 describe('TransactionVerificationComponent', () => {
@@ -8,9 +8,9 @@ describe('TransactionVerificationComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TransactionVerificationComponent]
-    })
-    .compileComponents();
+      imports: [TransactionVerificationComponent],
+      providers: [provideHttpClient()]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(TransactionVerificationComponent);
     component = fixture.componentInstance;

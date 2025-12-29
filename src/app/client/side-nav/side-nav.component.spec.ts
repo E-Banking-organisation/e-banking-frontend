@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 import { SideNavComponent } from './side-nav.component';
 
 describe('SideNavComponent', () => {
@@ -8,9 +9,17 @@ describe('SideNavComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SideNavComponent]
-    })
-    .compileComponents();
+      imports: [SideNavComponent],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            params: of({}),
+            snapshot: { params: {} }
+          }
+        }
+      ]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(SideNavComponent);
     component = fixture.componentInstance;

@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 import { AdminLayoutComponent } from './admin-layout.component';
 
 describe('AdminLayoutComponent', () => {
@@ -8,9 +9,17 @@ describe('AdminLayoutComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AdminLayoutComponent]
-    })
-    .compileComponents();
+      imports: [AdminLayoutComponent],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            params: of({}),
+            snapshot: { params: {} }
+          }
+        }
+      ]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AdminLayoutComponent);
     component = fixture.componentInstance;
