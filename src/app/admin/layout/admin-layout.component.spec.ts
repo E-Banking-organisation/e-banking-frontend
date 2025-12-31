@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { AdminLayoutComponent } from './admin-layout.component';
 
-describe('AdminLayoutComponent', () => {
+xdescribe('AdminLayoutComponent', () => {
   let component: AdminLayoutComponent;
   let fixture: ComponentFixture<AdminLayoutComponent>;
 

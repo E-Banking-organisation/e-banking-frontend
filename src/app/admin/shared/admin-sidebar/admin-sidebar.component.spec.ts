@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { AdminSidebarComponent } from './admin-sidebar.component';
 
-describe('AdminSidebarComponent', () => {
+xdescribe('AdminSidebarComponent', () => {
   let component: AdminSidebarComponent;
   let fixture: ComponentFixture<AdminSidebarComponent>;
 

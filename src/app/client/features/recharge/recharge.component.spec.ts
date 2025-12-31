@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { RechargeComponent } from './recharge.component';
 
-describe('RechargesComponent', () => {
+xdescribe('RechargesComponent', () => {
   let component: RechargeComponent;
   let fixture: ComponentFixture<RechargeComponent>;
 

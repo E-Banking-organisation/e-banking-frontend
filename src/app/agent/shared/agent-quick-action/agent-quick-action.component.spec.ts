@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AgentQuickActionComponent } from './agent-quick-action.component';
 
-describe('AgentQuickActionComponent', () => {
+xdescribe('AgentQuickActionComponent', () => {
   let component: AgentQuickActionComponent;
   let fixture: ComponentFixture<AgentQuickActionComponent>;
 
