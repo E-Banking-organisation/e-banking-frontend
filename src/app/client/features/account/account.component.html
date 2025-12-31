@@ -5,7 +5,7 @@
     <div class="card-summary" *ngFor="let account of accounts">
       <div class="balance">
         <strong>{{ account.type || 'N/A' }}</strong>
-        <h2>{{ account.balance ?? 0 }} {{ account.currency || 'N/A' }}</h2>
+        <h2>{{ account.balance }} {{ account.currency || 'N/A' }}</h2>
       </div>
       <div class="details">
         <div>Compte courant</div>

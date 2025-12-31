@@ -15,6 +15,14 @@ const routes: Routes = [
       { path: 'clients', component: ClientManagementComponent },
       { path: 'subscribers', component: SubscriberManagementComponent },
       { path: 'enrollments', component: EnrollmentComponent },
+
+      {
+        path: 'audit-logs',
+        loadComponent: () =>
+          import('../audit/features/audit-logs.component')
+            .then(m => m.AuditLogsComponent)
+      },
+
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   }
@@ -24,4 +32,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class AgentRoutingModule { }
+export class AgentRoutingModule {}

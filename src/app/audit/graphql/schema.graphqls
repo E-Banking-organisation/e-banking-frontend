@@ -1,0 +1,37 @@
+type AuditEvent {
+  id: ID!
+  userId: String!
+  action: String!
+  serviceName: String!
+  severity: AuditSeverity!
+  timestamp: String!
+  details: String
+}
+
+enum AuditSeverity {
+  INFO
+  WARNING
+  ERROR
+  CRITICAL
+}
+
+input AuditEventInput {
+  userId: String!
+  action: String!
+  serviceName: String!
+  severity: AuditSeverity!
+  details: String
+}
+
+type Query {
+  auditEvents(
+    userId: String
+    serviceName: String
+    severity: AuditSeverity
+    limit: Int
+  ): [AuditEvent!]!
+}
+
+type Mutation {
+  createAuditEvent(input: AuditEventInput!): AuditEvent!
+}

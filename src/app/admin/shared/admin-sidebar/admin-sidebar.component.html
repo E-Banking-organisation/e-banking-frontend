@@ -33,6 +33,12 @@
     <span>Paramètres Globaux</span>
   </div>
 
+  <!-- ✅ Nouveau lien pour les logs d'audit -->
+  <div class="nav-item" routerLink="/admin/audit-logs" routerLinkActive="active">
+    <fa-icon [icon]="faHistory"></fa-icon>
+    <span>Logs d'audit</span>
+  </div>
+
   <div class="nav-item logout" (click)="openLogoutConfirm()" (keydown.enter)="openLogoutConfirm()" (keydown.space)="openLogoutConfirm()" role="button" tabindex="0" [attr.aria-label]="'Déconnexion'">
     <fa-icon [icon]="faSignOutAlt"></fa-icon>
     <span>Déconnexion</span>

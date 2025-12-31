@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { Router } from '@angular/router';
+import { AuditGraphqlService } from '../../audit/core/services/audit-graphql.service';
 
 /* =======================
    Types
@@ -24,8 +25,6 @@ export interface LoginResponse {
   id: string;
   firstName: string;
   lastName: string;
-
-  // ⬇️ utilisés dans login.component.ts
   pinId?: string;
   phoneNumber?: string;
 }
@@ -37,7 +36,7 @@ export interface VerifyResponse {
 }
 
 /* =======================
-   Auth Service (MOCK)
+   Auth Service avec Audit
 ======================= */
 
 @Injectable({
@@ -47,10 +46,6 @@ export class AuthService {
 
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
-
-  /* =======================
-     Fake users
-  ======================= */
 
   private users: Record<UserRole, User> = {
     ADMIN: {
@@ -79,12 +74,15 @@ export class AuthService {
     }
   };
 
-  constructor(private router: Router) {
+  constructor(
+    private router: Router,
+    private auditService: AuditGraphqlService
+  ) {
     this.restoreSession();
   }
 
   /* =======================
-     GETTERS (IMPORTANT)
+     GETTERS
   ======================= */
 
   get currentUserValue(): User | null {
@@ -103,12 +101,29 @@ export class AuthService {
     const user = Object.values(this.users).find(u => u.email === email);
 
     if (!user) {
+      this.auditService.logEvent(
+        email,
+        'LOGIN_FAILED',
+        'AUTH_SERVICE',
+        'WARNING',
+        'Utilisateur introuvable'
+      ).subscribe();
       return throwError(() => new Error('Utilisateur introuvable'));
     }
 
     localStorage.setItem('token', user.token);
     localStorage.setItem('role', user.role);
+    localStorage.setItem('userId', user.id);
+
     this.currentUserSubject.next(user);
+
+    this.auditService.logEvent(
+      user.id,
+      'LOGIN_SUCCESS',
+      'AUTH_SERVICE',
+      'INFO',
+      `Connexion réussie pour ${user.email}`
+    ).subscribe();
 
     return of({
       message: 'Connexion réussie',
@@ -117,19 +132,27 @@ export class AuthService {
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
-
-      // Mock MFA
       pinId: '1234',
       phoneNumber: '+2126XXXXXXX'
     });
   }
 
   /* =======================
-     MFA VERIFY (MOCK)
+     MFA VERIFY
   ======================= */
 
   verifyCode(code: string): Observable<VerifyResponse> {
     if (code !== '1234') {
+      const user = this.currentUserValue;
+      if (user) {
+        this.auditService.logEvent(
+          user.id,
+          'MFA_VERIFICATION_FAILED',
+          'AUTH_SERVICE',
+          'WARNING',
+          'Code de vérification invalide'
+        ).subscribe();
+      }
       return throwError(() => new Error('Code invalide'));
     }
 
@@ -137,6 +160,14 @@ export class AuthService {
     if (!user) {
       return throwError(() => new Error('Utilisateur non connecté'));
     }
+
+    this.auditService.logEvent(
+      user.id,
+      'MFA_VERIFICATION_SUCCESS',
+      'AUTH_SERVICE',
+      'INFO',
+      'Vérification 2FA réussie'
+    ).subscribe();
 
     return of({
       token: user.token,
@@ -172,6 +203,17 @@ export class AuthService {
   ======================= */
 
   logout(): void {
+    const user = this.currentUserValue;
+    if (user) {
+      this.auditService.logEvent(
+        user.id,
+        'LOGOUT',
+        'AUTH_SERVICE',
+        'INFO',
+        `Déconnexion de ${user.email}`
+      ).subscribe();
+    }
+
     localStorage.clear();
     this.currentUserSubject.next(null);
     this.router.navigate(['/auth/login']);
@@ -182,10 +224,29 @@ export class AuthService {
   ======================= */
 
   forgotPassword(email: string): Observable<{ message: string }> {
+    this.auditService.logEvent(
+      email,
+      'PASSWORD_RESET_REQUEST',
+      'AUTH_SERVICE',
+      'INFO',
+      'Demande de réinitialisation de mot de passe'
+    ).subscribe();
+
     return of({ message: `Lien envoyé à ${email}` });
   }
 
   resetPassword(token: string, newPassword: string): Observable<{ message: string }> {
+    const user = this.currentUserValue;
+    if (user) {
+      this.auditService.logEvent(
+        user.id,
+        'PASSWORD_RESET_SUCCESS',
+        'AUTH_SERVICE',
+        'INFO',
+        'Mot de passe réinitialisé avec succès'
+      ).subscribe();
+    }
+
     return of({ message: 'Mot de passe réinitialisé avec succès' });
   }
 
@@ -203,14 +264,11 @@ export class AuthService {
     }
   }
 
-  /** Vérifie si un utilisateur est connecté */
   isLoggedIn(): boolean {
     return !!this.currentUserSubject.value;
   }
 
-  /** Retourne l'utilisateur courant */
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
   }
-
 }

@@ -14,22 +14,25 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   ];
 
   let modifiedReq = req;
+
   if (isBrowser) {
     const token = localStorage.getItem('token');
     const isPublicEndpoint = publicEndpoints.some(endpoint => req.url.includes(endpoint));
+    const isGraphQLRequest = req.url.includes('/graphql');
 
+    // ✅ Ajouter le token à TOUTES les requêtes sauf les publiques
     if (token && !isPublicEndpoint) {
       modifiedReq = req.clone({
         setHeaders: {
           Authorization: `Bearer ${token}`
         }
       });
-      console.log('Added Authorization header with token for:', req.url);
-    } else {
-      console.log('No Authorization header added for:', req.url);
+      console.log(`✅ Token ajouté pour ${isGraphQLRequest ? 'GraphQL' : 'REST'}:`, req.url);
+    } else if (!token && !isPublicEndpoint) {
+      console.warn('⚠️ Aucun token disponible pour:', req.url);
+    } else if (isPublicEndpoint) {
+      console.log('🔓 Endpoint public, pas de token nécessaire:', req.url);
     }
-  } else {
-    console.log('Running on server, skipping token addition for:', req.url);
   }
 
   return next(modifiedReq);

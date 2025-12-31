@@ -17,6 +17,15 @@ const routes: Routes = [
       { path: 'global-settings', component: GlobalSettingsComponent },
       { path: 'agents', component: AgentManagementComponent },
       { path: 'transactions', component: TransactionVerificationComponent },
+
+
+      {
+        path: 'audit-logs',
+        loadComponent: () =>
+          import('../audit/features/audit-logs.component')
+            .then(m => m.AuditLogsComponent)
+      },
+
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   }
@@ -26,4 +35,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class AdminRoutingModule { }
+export class AdminRoutingModule {}

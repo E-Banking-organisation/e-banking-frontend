@@ -1,0 +1,201 @@
+/***************************
+    CONTAINER & HEADER
+****************************/
+.audit-container {
+  padding: 2rem;
+  background: linear-gradient(135deg, #e9edf5, #f4f6fa);
+  border-radius: 20px;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.08);
+}
+
+.audit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.role-badge {
+  background: #6a4feb;
+  color: white;
+  padding: .5rem 1rem;
+  border-radius: 20px;
+  font-size: .8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+
+/***************************
+    ACTIONS / FILTERS
+****************************/
+.audit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  margin: 1rem 0;
+}
+
+.audit-actions button {
+  border: none;
+  padding: .55rem 1rem;
+  border-radius: 25px;
+  font-size: .85rem;
+  cursor: pointer;
+  background: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  transition: .25s;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+
+/* Hover par défaut */
+.audit-actions button:hover {
+  background: #eceaff;
+  transform: translateY(-2px);
+}
+
+/* FILTRE ACTIF  */
+.audit-actions button.active {
+  background: #6a4feb !important;
+  color: white !important;
+  font-weight: bold;
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 4px 10px rgba(106,79,235,0.4);
+}
+
+/* Animation douce quand on change */
+.audit-actions button.active {
+  transition: background 0.3s, transform 0.2s;
+}
+
+
+/***************************
+    TABLE
+****************************/
+.audit-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  overflow-x: auto; /* 👍 utile pour mobile */
+}
+
+.audit-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px; /* force le scroll mobile */
+}
+
+.audit-table thead {
+  background: linear-gradient(120deg, #6a4feb, #8e71ff);
+  color: white;
+}
+
+.audit-table th,
+.audit-table td {
+  padding: .9rem;
+  text-align: left;
+  font-size: .88rem;
+}
+
+.audit-table tbody tr:hover {
+  background: #faf7ff;
+}
+
+
+/***************************
+    BADGES
+****************************/
+.badge {
+  padding: .35rem .7rem;
+  border-radius: 8px;
+  font-size: .75rem;
+  font-weight: bold;
+  color: white;
+}
+
+.severity-error { background: #ff4d4d; }
+.severity-critical { background: #c40000; }
+.severity-warning { background: #f0a500; }
+.severity-info { background: #007aff; }
+
+
+/***************************
+    FOOTER & ACCESS DENIED
+****************************/
+.last-update {
+  text-align: right;
+  font-size: .85rem;
+  opacity: .7;
+  margin-top: .5rem;
+}
+
+.access-denied {
+  text-align: center;
+  padding: 3rem;
+}
+
+
+/***************************
+    📱 RESPONSIVE MOBILE
+****************************/
+@media (max-width: 768px) {
+  .audit-container {
+    padding: 1rem;
+  }
+
+  .audit-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .audit-actions {
+    justify-content: center;
+  }
+
+  .audit-actions button {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .audit-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .role-badge {
+    margin-top: .5rem;
+  }
+
+  /* Table en mode cartes (UX mobile) */
+  .audit-table {
+    display: block;
+  }
+  .audit-table thead {
+    display: none;
+  }
+  .audit-table tr {
+    display: block;
+    background: #fafafa;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    padding: .7rem;
+  }
+  .audit-table td {
+    display: flex;
+    justify-content: space-between;
+    padding: .5rem;
+    border-bottom: 1px solid #eee;
+  }
+
+  .audit-table td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    color: #6a4feb;
+  }
+
+}

@@ -11,7 +11,8 @@ import {
   faMoneyBillWave,
   faExchangeAlt,
   faGlobe,
-  faBars
+  faBars,
+  faHistory  // ✅ Ajout
 } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -33,6 +34,7 @@ export class AdminSidebarComponent implements OnInit {
   faExchangeAlt = faExchangeAlt;
   faGlobe = faGlobe;
   faBars = faBars;
+  faHistory = faHistory;  // ✅ Ajout
 
   showLogoutConfirm = false;
   isCompactMode = false;
