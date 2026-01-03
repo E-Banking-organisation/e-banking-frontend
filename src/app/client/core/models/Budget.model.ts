@@ -5,6 +5,8 @@ export interface BudgetCategory {
   color: string;
   budgetLimit: number;
   currentSpending: number;
+  clientId?: number;
+
 }
 
 export interface Expense {
