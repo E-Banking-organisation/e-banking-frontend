@@ -1,40 +1,50 @@
 <div class="assistant-container">
   <div class="assistant-header">
-    <h2>Assistant Bancaire</h2>
+    <h2>🤖 Assistant Bancaire IA</h2>
+    <span class="status" [class.online]="!isLoading">
+      {{ isLoading ? 'En réflexion...' : 'En ligne' }}
+    </span>
   </div>
 
-  <div class="conversation-container">
-    <div *ngIf="conversation.length === 0" class="assistant">
-      <div class="message">
-        Bonjour, je suis votre assistant bancaire virtuel. Comment puis-je vous aider aujourd'hui ?
+  <div class="chat-container" #chatContainer>
+    <div *ngFor="let msg of conversation" 
+         class="message" 
+         [class.user]="msg.sender === 'user'"
+         [class.assistant]="msg.sender === 'assistant'">
+      <div class="message-content">
+        <div class="message-text">{{ msg.message }}</div>
+        <div class="message-time">
+          {{ msg.timestamp | date:'HH:mm' }}
+        </div>
       </div>
     </div>
 
-    <div *ngFor="let msg of conversation" [ngClass]="msg.sender">
-      <div class="message">
-        {{msg.message}}
-      </div>
-      <div class="timestamp">
-        {{msg.timestamp | date:'HH:mm'}}
-      </div>
-    </div>
-
-    <div *ngIf="isLoading" class="assistant loading">
-      <div class="message">
+    <!-- Indicateur de chargement -->
+    <div *ngIf="isLoading" class="message assistant">
+      <div class="message-content typing">
         <div class="typing-indicator">
           <span></span>
           <span></span>
           <span></span>
         </div>
+        <div class="typing-text">L'IA réfléchit...</div>
       </div>
     </div>
   </div>
 
   <div class="input-container">
-    <input type="text"
-           [(ngModel)]="userMessage"
-           (keyup.enter)="sendMessage()"
-           placeholder="Tapez votre message ici..." />
-    <button (click)="sendMessage()">Envoyer</button>
+    <textarea
+      [(ngModel)]="userMessage"
+      (keypress)="onKeyPress($event)"
+      placeholder="Posez votre question bancaire..."
+      [disabled]="isLoading"
+      rows="1"
+    ></textarea>
+    <button 
+      (click)="sendMessage()" 
+      [disabled]="!userMessage.trim() || isLoading"
+      class="send-btn">
+      {{ isLoading ? '⏳' : '➤' }}
+    </button>
   </div>
 </div>

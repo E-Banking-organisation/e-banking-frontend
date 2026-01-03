@@ -1,7 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AssistantService } from '../../core/services/assistant.service';
+
+interface ChatMessage {
+  sender: 'user' | 'assistant';
+  message: string;
+  timestamp: Date;
+}
 
 @Component({
   selector: 'app-assistant',
@@ -10,29 +16,49 @@ import { AssistantService } from '../../core/services/assistant.service';
   templateUrl: './assistant.component.html',
   styleUrl: './assistant.component.css'
 })
-export class AssistantComponent {
-  userMessage: string = '';
-  conversation: { sender: 'user' | 'assistant'; message: string; timestamp: Date }[] = [];
-  isLoading: boolean = false;
+export class AssistantComponent implements AfterViewChecked {
+  @ViewChild('chatContainer') private chatContainer!: ElementRef;
 
-  constructor(private assistantService: AssistantService) {}
+  userMessage = '';
+  conversation: ChatMessage[] = [];
+  isLoading = false;
 
-  sendMessage() {
-    if (!this.userMessage.trim()) return;
+  constructor(private assistantService: AssistantService) {
+    // Message de bienvenue
+    this.conversation.push({
+      sender: 'assistant',
+      message: 'Bonjour ! Je suis votre assistant bancaire IA. Comment puis-je vous aider aujourd\'hui ?',
+      timestamp: new Date()
+    });
+  }
 
-    // Ajouter le message utilisateur à la conversation
+  ngAfterViewChecked(): void {
+    this.scrollToBottom();
+  }
+
+  private scrollToBottom(): void {
+    try {
+      this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
+    } catch (err) {}
+  }
+
+  sendMessage(): void {
+    if (!this.userMessage.trim() || this.isLoading) return;
+
+    const userQuery = this.userMessage.trim();
+    
+    // Ajouter le message utilisateur
     this.conversation.push({
       sender: 'user',
-      message: this.userMessage,
+      message: userQuery,
       timestamp: new Date()
     });
 
-    const userQuery = this.userMessage;
     this.userMessage = '';
     this.isLoading = true;
 
-    // Envoyer le message au backend via AssistantService
-    this.assistantService.processMessage(userQuery).subscribe({
+    // Appeler le backend IA
+    this.assistantService.askBank(userQuery).subscribe({
       next: (response) => {
         this.conversation.push({
           sender: 'assistant',
@@ -42,14 +68,22 @@ export class AssistantComponent {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Erreur lors du traitement du message:', error);
+        console.error('Erreur IA:', error);
         this.conversation.push({
           sender: 'assistant',
-          message: 'Un problème est survenu, veuillez essayer ultérieurement.',
+          message: '❌ Désolé, je rencontre des difficultés techniques. Veuillez réessayer dans quelques instants.',
           timestamp: new Date()
         });
         this.isLoading = false;
       }
     });
+  }
+
+  // Permettre l'envoi avec Entrée
+  onKeyPress(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      this.sendMessage();
+    }
   }
 }
