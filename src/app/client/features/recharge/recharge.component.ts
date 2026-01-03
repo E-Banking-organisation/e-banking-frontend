@@ -172,6 +172,6 @@ export class RechargeComponent implements OnInit {
 
   getAccountLabel(id: number): string {
     const account = this.accounts.find(a => a.id === id);
-    return account ? `${account.type.toLowerCase()} ` : 'Inconnu';
+    return account ? `${account.typeCompte.toLowerCase()} ` : 'Inconnu';
   }
 }

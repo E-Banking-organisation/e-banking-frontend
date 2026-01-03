@@ -58,7 +58,7 @@
         <select [(ngModel)]="mobileRechargeForm.accountId">
           <option [value]="0" disabled>Sélectionnez un compte</option>
           <option *ngFor="let account of accounts" [value]="account.id">
-            {{account.type}} - {{account.accountNumber | slice:0:4}}...{{account.accountNumber | slice:-4}} ({{account.balance}} {{account.currency}})
+            {{account.typeCompte}} - {{account.numeroCompte | slice:0:4}}...{{account.numeroCompte | slice:-4}} ({{account.solde}} {{account.devise}})
           </option>
         </select>
       </div>
@@ -126,7 +126,7 @@
         <select [(ngModel)]="serviceRechargeForm.accountId">
           <option [value]="0" disabled>Sélectionnez un compte</option>
           <option *ngFor="let account of accounts" [value]="account.id">
-            {{account.type}} - {{account.accountNumber | slice:0:4}}...{{account.accountNumber | slice:-4}} ({{account.balance}} {{account.currency}})
+            {{account.typeCompte}} - {{account.numeroCompte | slice:0:4}}...{{account.numeroCompte | slice:-4}} ({{account.solde}} {{account.devise}})
           </option>
         </select>
       </div>

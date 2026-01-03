@@ -192,12 +192,12 @@
       <div class="form-group">
         <label for="expense-modal-account">Compte</label>
         <select id="expense-modal-account" [(ngModel)]="newExpense.accountId">
-          <option *ngFor="let account of accounts" [value]="account.id">{{ account.type }}</option>
+          <option *ngFor="let account of accounts" [value]="account.id">{{ account.typeCompte }}</option>
         </select>
       </div>
     </div>
 
-    <div class="modal-footer">
+    <div class="modal-footer">balance
       <button class="btn-secondary" (click)="resetExpenseForm()">Annuler</button>
       <button class="btn-primary" (click)="addExpense()">Ajouter</button>
     </div>

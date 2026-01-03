@@ -49,7 +49,7 @@
         <select id="account" [(ngModel)]="selectedAccountId" [disabled]="accounts.length === 0">
           <option *ngIf="accounts.length === 0" disabled>Aucun compte disponible</option>
           <option *ngFor="let account of accounts" [value]="account.id">
-            {{ account.accountNumber }} ({{ account.type }} - {{ account.balance }} {{ account.currency }})
+            {{ account.numeroCompte }} ({{ account.typeCompte }} - {{ account.solde }} {{ account.devise }})
           </option>
         </select>
       </div>

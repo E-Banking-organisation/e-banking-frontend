@@ -7,17 +7,18 @@ import { Transaction } from '../models/transaction.model';
 import { Transfer } from '../models/Transfer.model';
 import { AuthService } from '../../../auth/services/auth.service';
 import { AuditGraphqlService } from '../../../audit/core/services/audit-graphql.service';
+import {AccountService} from './account.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class VirementService {
 
-  private accountsSubject = new BehaviorSubject<Account[]>([]);
+  accounts$!: Observable<Account[]>; // 👈 déclaration SANS initialisation
+
   private beneficiariesSubject = new BehaviorSubject<Beneficiary[]>([]);
   private transfersSubject = new BehaviorSubject<Transaction[]>([]);
 
-  accounts$ = this.accountsSubject.asObservable();
   beneficiaries$ = this.beneficiariesSubject.asObservable();
   transfers$ = this.transfersSubject.asObservable();
 
@@ -25,17 +26,20 @@ export class VirementService {
 
   constructor(
     private authService: AuthService,
-    private auditService: AuditGraphqlService
+    private auditService: AuditGraphqlService,
+    private accountService: AccountService
   ) {
-    this.accountsSubject.next([
-      { id: 1, accountNumber: '123', rib: 'RIB1', balance: 1000, limit: 5000, dateCrea: new Date(), type: 'Courant', iban: 'IBAN1', currency: 'MAD', statut: 'Actif' },
-      { id: 2, accountNumber: '456', rib: 'RIB2', balance: 2000, limit: 5000, dateCrea: new Date(), type: 'Épargne', iban: 'IBAN2', currency: 'MAD', statut: 'Actif' }
-    ]);
+
+    this.accounts$ = this.accountService.accounts$;
 
     this.beneficiariesSubject.next([
       { id: 1, name: 'Sophie Martin', accountNumber: '789', favorite: true, client_id: 1, beneficiare_id: 1 },
       { id: 2, name: 'Lucas Dubois', accountNumber: '101', favorite: false, client_id: 1, beneficiare_id: 2 }
     ]);
+  }
+
+  loadAccounts(): void {
+    this.accountService.getAccounts().subscribe();
   }
 
   getAccounts(): Observable<Account[]> {
@@ -50,7 +54,7 @@ export class VirementService {
       ).subscribe();
     }
 
-    return of(this.accountsSubject.value);
+    return this.accounts$;
   }
 
   getBeneficiaries(): Beneficiary[] {
