@@ -7,11 +7,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const isBrowser = isPlatformBrowser(platformId);
 
   const publicEndpoints = [
-    '/api/auth/login',
-    '/api/auth/verify-code',
-    '/api/auth/forgot-password',
-    '/api/auth/reset-password',
-    '/api/agents/**'
+    '/auth/login',
+    '/auth/verify-code',
+    '/auth/forgot-password',
+    '/auth/reset-password'
   ];
 
   let modifiedReq = req;

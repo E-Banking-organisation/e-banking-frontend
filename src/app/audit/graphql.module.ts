@@ -9,8 +9,8 @@ import { environment } from '../../environments/environment';
 // URL du client par défaut (audit)
 const defaultUri = 'http://localhost:8080/graphql';
 
-// Factory pour le client par défaut
-export function createApollo(httpLink: HttpLink): ApolloClientOptions<any> {
+
+export function createApollo(httpLink: HttpLink): ApolloClientOptions {
   const http = httpLink.create({ uri: defaultUri });
 
   return {
@@ -92,4 +92,4 @@ export function createNamedApollo(httpLink: HttpLink): NamedOptions {
     }
   ]
 })
-export class GraphQLModule {}
+export class GraphQLModule { }
