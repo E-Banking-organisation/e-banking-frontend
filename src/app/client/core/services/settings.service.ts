@@ -26,10 +26,36 @@ export class SettingsService {
     twoFactorEnabled: false
   };
 
-  private mockAccounts: Account[] = [
-    { id: 1, accountNumber: '1234567890', rib: 'RIB123', balance: 1000, limit: 5000, dateCrea: new Date(), type: 'Courant', iban: 'MA123456789', currency: 'MAD', statut: 'Actif' },
-    { id: 2, accountNumber: '0987654321', rib: 'RIB456', balance: 2000, limit: 5000, dateCrea: new Date(), type: 'Épargne', iban: 'MA987654321', currency: 'MAD', statut: 'Actif' }
-  ];
+  private mockAccounts: Account[] = [{
+    id: 1,
+    numeroCompte: '123',
+    rib: 'RIB1',
+    solde: 1000,
+    plafond: 5000,
+    dateCreation: new Date(),
+    typeCompte: 'Courant',
+    iban: 'IBAN1',
+    devise: 'MAD',
+    statut: 'Actif',
+    etat: false,
+    clientId: 0,
+    transactions: []
+  },
+    {
+      id: 2,
+      numeroCompte: '456',
+      rib: 'RIB2',
+      solde: 2000,
+      plafond: 5000,
+      dateCreation: new Date(),
+      typeCompte: 'Épargne',
+      iban: 'IBAN2',
+      devise: 'MAD',
+      statut: 'Actif',
+      etat: false,
+      clientId: 0,
+      transactions: []
+    }];
 
   constructor(private authService: AuthService) {}
 

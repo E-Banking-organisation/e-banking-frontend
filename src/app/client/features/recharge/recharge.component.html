@@ -24,7 +24,7 @@
              class="operator-card"
              [class.selected]="mobileRechargeForm.operatorId === operator.id"
              (click)="selectMobileOperator(operator.id)">
-          <img [src]="operator.logo" [alt]="operator.name" width="80%" height="50%">
+          <img [src]="'assets/operators/'+operator.logo" [alt]="operator.name" width="80%" height="50%">
           <span>{{operator.name}}</span>
         </div>
       </div>
@@ -34,7 +34,7 @@
     <div class="recharge-form" *ngIf="mobileRechargeForm.operatorId > 0">
       <div class="form-group">
         <label>Numéro de téléphone</label>
-        <input type="tel" [(ngModel)]="mobileRechargeForm.phoneNumber" placeholder="06XXXXXXXX">
+        <input type="tel" [(ngModel)]="mobileRechargeForm.phoneNumber" placeholder="06XXXXXXXX" (ngModelChange)="updateMobileValidation()">
       </div>
 
       <div class="form-group">
@@ -48,26 +48,26 @@
           </div>
         </div>
         <div class="custom-amount">
-          <input type="number" [(ngModel)]="mobileRechargeForm.amount" min="1" step="1" placeholder="Autre montant...">
+          <input type="number" [(ngModel)]="mobileRechargeForm.amount" (ngModelChange)="updateMobileValidation()" min="1" step="1" placeholder="Autre montant...">
           <span class="currency">€</span>
         </div>
       </div>
 
       <div class="form-group">
         <label>Compte à débiter</label>
-        <select [(ngModel)]="mobileRechargeForm.accountId">
+        <select [(ngModel)]="mobileRechargeForm.accountId" (ngModelChange)="updateMobileValidation()">
           <option [value]="0" disabled>Sélectionnez un compte</option>
           <option *ngFor="let account of accounts" [value]="account.id">
-            {{account.type}} - {{account.accountNumber | slice:0:4}}...{{account.accountNumber | slice:-4}} ({{account.balance}} {{account.currency}})
+            {{account.typeCompte}} - {{account.numeroCompte | slice:0:4}}...{{account.numeroCompte | slice:-4}} ({{account.solde}} {{account.devise}})
           </option>
         </select>
       </div>
 
       <div class="form-actions">
         <button class="btn-primary"
-                [disabled]="!validateMobileRecharge()"
+                [disabled]="!isMobileRechargeValid"
                 (click)="processMobileRecharge()">
-          <fa-icon [icon]="faCreditCard"></fa-icon> Recharger maintenant
+        <fa-icon [icon]="faCreditCard"></fa-icon> Recharger maintenant
         </button>
       </div>
     </div>
@@ -100,7 +100,7 @@
              class="operator-card service-card"
              [class.selected]="serviceRechargeForm.operatorId === service.id"
              (click)="selectService(service.id)">
-          <img [src]="service.logo" [alt]="service.name">
+          <img [src]="'assets/operators/'+service.logo" [alt]="service.name">
           <span>{{service.name}}</span>
         </div>
       </div>
@@ -109,7 +109,7 @@
     <!-- Formulaire de recharge de service -->
     <div class="recharge-form" *ngIf="serviceRechargeForm.operatorId > 0">
       <div class="form-group">
-        <label>Référence client / Identifiant (optionnel)</label>
+        <label>Référence client / Identifiant </label>
         <input type="text" [(ngModel)]="serviceRechargeForm.reference" placeholder="Référence ou identifiant...">
       </div>
 
@@ -126,7 +126,7 @@
         <select [(ngModel)]="serviceRechargeForm.accountId">
           <option [value]="0" disabled>Sélectionnez un compte</option>
           <option *ngFor="let account of accounts" [value]="account.id">
-            {{account.type}} - {{account.accountNumber | slice:0:4}}...{{account.accountNumber | slice:-4}} ({{account.balance}} {{account.currency}})
+            {{account.typeCompte}} - {{account.numeroCompte | slice:0:4}}...{{account.numeroCompte | slice:-4}} ({{account.solde}} {{account.devise}})
           </option>
         </select>
       </div>
@@ -161,17 +161,17 @@
         <tr *ngFor="let recharge of recharges">
           <td>{{recharge.date | date:'dd/MM/yyyy'}}</td>
           <td class="operator-cell">
-            <img class="mini-logo" [src]="getOperatorLogo(recharge.operatorId)" [alt]="getOperatorName(recharge.operatorId)">
-            {{getOperatorName(recharge.operatorId)}}
+            <img class="mini-logo" [src]="'assets/operators/'+getOperatorLogo(recharge.operator)" [alt]="getOperatorName(recharge.operator)">
+            {{getOperatorName(recharge.operator)}}
           </td>
           <td>
             <span *ngIf="recharge.phoneNumber">Tél: {{recharge.phoneNumber}} </span>
             <span *ngIf="recharge.reference"> Réf: {{recharge.reference}}</span>
           </td>
-          <td>{{getAccountLabel(recharge.accountId)}}</td>
+          <td>{{getAccountLabel(recharge.account)}}</td>
           <td class="amount negative">-{{recharge.amount}} €</td>
           <td>
-            <span class="badge" [ngClass]="recharge.status.toLowerCase()">{{recharge.status.toLowerCase()}}</span>
+            <span class="badge" [ngClass]="'validee'">confirmé</span>
           </td>
         </tr>
         <tr *ngIf="recharges.length === 0">

@@ -80,9 +80,10 @@ export class VirementComponent implements OnInit {
         this.accounts = []; // En cas d'erreur, s'assurer que accounts est un tableau vide
       }
     });
-
+    this.virementService.loadAllTransfersForAllAccounts().subscribe();
     this.beneficiaries = this.virementService.getBeneficiaries();
     this.transfers = this.virementService.getTransfers();
+    console.log("les transfers sont : ",this.transfers);
 
     // S'abonner aux changements
     this.virementService.beneficiaries$.subscribe(beneficiaries => {

@@ -1,10 +1,10 @@
 export interface Recharge {
   id: number;
   date: Date;
-  operatorId: number;
-  accountId: number;
+  operator: number;
+  account: number;
   amount: number;
-  status: 'En attente' | 'Confirmé' | 'Échoué';
+  status:  'Confirmé' ;
   phoneNumber?: string;
   reference?: string;
 }

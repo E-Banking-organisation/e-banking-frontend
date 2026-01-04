@@ -4,54 +4,191 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Account } from '../models/account.model';
 import { AuthService, User } from '../../../auth/services/auth.service';
+import { Apollo, gql } from 'apollo-angular';
+import {map} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AccountService {
 
-  constructor(private authService: AuthService) {}
+  private accountsSubject = new BehaviorSubject<Account[]>([]);
+  accounts$ = this.accountsSubject.asObservable();
+  constructor(private apollo: Apollo, private authService: AuthService) {}
 
-  private accounts: Account[] = [
-    {
-      id: 1,
-      accountNumber: '00123456789',
-      rib: 'RIB001',
-      balance: 15000,
-      limit: 5000,
-      dateCrea: new Date('2022-01-10'),
-      type: 'COURANT',
-      iban: 'MA640115190000012345678901',
-      currency: 'MAD',
-      statut: 'ACTIVE'
-    },
-    {
-      id: 2,
-      accountNumber: '00987654321',
-      rib: 'RIB002',
-      balance: 8200,
-      limit: 3000,
-      dateCrea: new Date('2023-05-15'),
-      type: 'EPARGNE',
-      iban: 'MA640115190000098765432109',
-      currency: 'MAD',
-      statut: 'ACTIVE'
+  getAccounts(forceRefresh: boolean = false): Observable<Account[]> {
+    console.log(this.accounts$);
+    if (!forceRefresh && this.accountsSubject.value.length > 0) {
+      return of(this.accountsSubject.value);
     }
-  ];
 
-  getAccounts(): Observable<Account[]> {
-    if (!this.authService.isLoggedIn()) {
-      return throwError(() => new Error('Utilisateur non connecté'));
-    }
-    return of(this.accounts);
+    const GET_ACCOUNTS = gql`
+      query GetAccounts($clientId: ID) {
+        accounts(clientId: $clientId) {
+          id
+          numeroCompte
+          rib
+          solde
+          plafond
+          dateCreation
+          typeCompte
+          iban
+          devise
+          statut
+          etat
+          clientId
+          transactions {
+            id
+            accountId
+            destinationAccountId
+            reference
+            date
+            description
+            amount
+            type
+            status
+            devise
+            frais
+            source
+            destination
+          }
+        }
+      }
+    `;
+    return this.apollo.use('analytics').query<{ accounts: Account[] }>({
+      query: GET_ACCOUNTS,
+      variables: { clientId: 6 },
+      fetchPolicy: 'network-only'
+    }).pipe(
+      map(res => {
+        const accounts = res.data?.accounts ?? [];
+        this.accountsSubject.next(accounts);
+        return accounts;
+      })
+    );
   }
 
+
   getAccountById(id: number): Observable<Account> {
-    const account = this.accounts.find(a => a.id === id);
-    if (!account) {
-      return throwError(() => new Error('Compte introuvable'));
-    }
-    return of(account);
+    const GET_ACCOUNT = gql`
+      query GetAccount($id: ID!) {
+        account(id: $id) {
+          id
+          numeroCompte
+          rib
+          solde
+          plafond
+          dateCreation
+          typeCompte
+          iban
+          devise
+          statut
+          etat
+          clientId
+        }
+      }
+    `;
+    return this.apollo.use('analytics')
+      .query<{ account: Account }>({ query: GET_ACCOUNT, variables: { id }, fetchPolicy: 'network-only' })
+      .pipe(map(result => result.data!.account));
+  }
+
+  createAccount(account: Omit<Account, 'id'>): Observable<Account> {
+    const CREATE_ACCOUNT = gql`
+      mutation CreateAccount(
+        $numeroCompte: String!, $rib: String, $solde: Float!, $plafond: Float,
+        $dateCreation: String!, $typeCompte: String, $iban: String, $devise: String,
+        $statut: String, $etat: Boolean!, $clientId: ID!
+      ) {
+        createAccount(
+          numeroCompte: $numeroCompte,
+          rib: $rib,
+          solde: $solde,
+          plafond: $plafond,
+          dateCreation: $dateCreation,
+          typeCompte: $typeCompte,
+          iban: $iban,
+          devise: $devise,
+          statut: $statut,
+          etat: $etat,
+          clientId: $clientId
+        ) {
+          id
+          numeroCompte
+          rib
+          solde
+          plafond
+          dateCreation
+          typeCompte
+          iban
+          devise
+          statut
+          etat
+          clientId
+        }
+      }
+    `;
+    return this.apollo.use('analytics')
+      .mutate<{ createAccount: Account }>({
+        mutation: CREATE_ACCOUNT,
+        variables: { ...account, dateCreation: account.dateCreation?.toISOString() }
+      })
+      .pipe(map(result => result.data!!.createAccount));
+  }
+
+  updateAccount(id: number, account: Partial<Account>): Observable<Account> {
+    const UPDATE_ACCOUNT = gql`
+      mutation UpdateAccount(
+        $id: ID!, $numeroCompte: String, $rib: String, $solde: Float,
+        $plafond: Float, $dateCreation: String, $typeCompte: String, $iban: String,
+        $devise: String, $statut: String, $etat: Boolean, $clientId: ID
+      ) {
+        updateAccount(
+          id: $id,
+          numeroCompte: $numeroCompte,
+          rib: $rib,
+          solde: $solde,
+          plafond: $plafond,
+          dateCreation: $dateCreation,
+          typeCompte: $typeCompte,
+          iban: $iban,
+          devise: $devise,
+          statut: $statut,
+          etat: $etat,
+          clientId: $clientId
+        ) {
+          id
+          numeroCompte
+          rib
+          solde
+          plafond
+          dateCreation
+          typeCompte
+          iban
+          devise
+          statut
+          etat
+          clientId
+        }
+      }
+    `;
+    return this.apollo.use('analytics')
+      .mutate<{ updateAccount: Account }>({
+        mutation: UPDATE_ACCOUNT,
+        variables: { id, ...account, dateCreation: account.dateCreation?.toISOString() }
+      })
+      .pipe(map(result => result.data!!.updateAccount));
+  }
+
+  deleteAccount(id: number): Observable<void> {
+    const DELETE_ACCOUNT = gql`
+      mutation DeleteAccount($id: ID!) {
+        deleteAccount(id: $id)
+      }
+    `;
+    return this.apollo.use('analytics')
+      .mutate({ mutation: DELETE_ACCOUNT, variables: { id } })
+      .pipe(map(() => void 0));
   }
 
   downloadAccountStatement(accountId: number): Observable<boolean> {
@@ -68,13 +205,13 @@ export class AccountService {
         autoTable(doc, {
           startY: 30,
           head: [['Champ', 'Valeur']],
-          body: [
+          body: [    // 🔹 Si déjà chargé et pas de refresh → on renvoie le cache
             ['Titulaire', `${user.firstName} ${user.lastName}`],
             ['Email', user.email],
-            ['Numéro de compte', account.accountNumber],
+            ['Numéro de compte', account.numeroCompte],
             ['IBAN', account.iban],
-            ['Solde', `${account.balance} ${account.currency}`],
-            ['Type', account.type],
+            ['Solde', `${account.solde} ${account.devise}`],
+            ['Type', account.typeCompte],
             ['Statut', account.statut]
           ]
         });

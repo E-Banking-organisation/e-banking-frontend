@@ -45,7 +45,7 @@ export class AccountComponent implements OnInit {
     this.accountService.getAccounts().subscribe({
       next: (accounts) => {
         console.log('Raw API response:', accounts);
-        this.accounts = accounts.filter(account => account && account.id && account.accountNumber && account.accountNumber !== 'N/A');
+        this.accounts = accounts.filter(account => account && account.id && account.numeroCompte && account.numeroCompte !== 'N/A');
         console.log('Filtered accounts:', this.accounts);
         console.log('Number of accounts:', this.accounts.length);
         if (this.accounts.length === 0) {

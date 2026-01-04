@@ -21,7 +21,7 @@
       <select [(ngModel)]="transferForm.sourceAccountId" [disabled]="accounts.length === 0">
         <option *ngIf="accounts.length === 0" [value]="0" disabled>Sélectionnez un compte</option>
         <option *ngFor="let account of accounts" [value]="account.id">
-          {{account.type }} - {{account.rib | slice:0:4}}...{{account.rib | slice:-4}} - {{account.balance}} {{account.currency}}
+          {{account.typeCompte }} - {{account.rib | slice:0:4}}...{{account.rib | slice:-4}} - {{account.solde}} {{account.devise}}
         </option>
       </select>
     </div>

@@ -4,14 +4,14 @@
 
   <div class="account-summary-list">
     <div class="card-summary" *ngFor="let account of accounts">
-      <div class="balance">
-        <strong>{{ account.type }}</strong>
-        <h2>{{ account.balance }} {{ account.currency }}</h2>
+      <div class="solde">
+        <strong>{{ account.typeCompte }}</strong>
+        <h2>{{ account.solde }} {{ account.devise }}</h2>
       </div>
 
       <div class="details">
         <div>Compte courant</div>
-        <div class="card-number">**** **** **** {{ account.accountNumber.slice(-4) }}</div>
+        <div class="card-number">**** **** **** {{ account.numeroCompte.slice(-4) }}</div>
       </div>
     </div>
   </div>

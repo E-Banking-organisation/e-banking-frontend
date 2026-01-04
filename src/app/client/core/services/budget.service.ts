@@ -1,30 +1,70 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { BudgetCategory, Expense, BudgetAlert } from '../models/Budget.model';
+import { Apollo, gql } from 'apollo-angular';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BudgetService {
 
-  private categories: BudgetCategory[] = [
-    {
-      id: 1,
-      name: 'Alimentation',
-      icon: 'restaurant',
-      color: '#4CAF50',
-      budgetLimit: 3000,
-      currentSpending: 2200
-    },
-    {
-      id: 2,
-      name: 'Transport',
-      icon: 'directions_car',
-      color: '#2196F3',
-      budgetLimit: 1500,
-      currentSpending: 900
-    }
-  ];
+  constructor(private apollo: Apollo) {}
+
+  private categories: BudgetCategory[] = [];
+
+  getBudgetCategories(): Observable<BudgetCategory[]> {
+    const GET_BUDGETS = gql`
+      query GetBudgets {
+        budgets {
+          id
+          name
+          icon
+          color
+          budgetLimit
+          currentSpending
+          clientId
+        }
+      }
+    `;
+
+    return this.apollo.use('analytics')
+      .query<{ budgets: BudgetCategory[] }>({
+        query: GET_BUDGETS,
+        fetchPolicy: 'network-only'
+      })
+      .pipe(
+        map(result => result.data!.budgets)
+      );
+  }
+
+
+
+  /*getBudgetById(id: number): Observable<BudgetCategory | null> {
+    const GET_BUDGET = gql`
+      query GetBudget($id: ID!) {
+        budget(id: $id) {
+          id
+          name
+          icon
+          color
+          budgetLimit
+          currentSpending
+          clientId
+        }
+      }
+    `;
+
+    return this.apollo.use('analytics').watchQuery<{ budget?: BudgetCategory }>({
+      query: GET_BUDGET,
+      variables: {id}
+    })
+      .valueChanges
+      .pipe(
+        map(result => result.data?.budget ?? null)
+      );
+  }*/
+
 
   private expenses: Expense[] = [
     {
@@ -57,47 +97,125 @@ export class BudgetService {
     }
   ];
 
-  getBudgetCategories(): Observable<BudgetCategory[]> {
-    return of(this.categories);
+  updateBudgetCategory(category: BudgetCategory): Observable<void> {
+    const UPDATE_BUDGET = gql`
+      mutation UpdateBudget($id: ID!, $name: String!, $icon: String, $color: String, $budgetLimit: Float!) {
+        updateBudget(id: $id, name: $name, icon: $icon, color: $color, budgetLimit: $budgetLimit) {
+          id
+        }
+      }
+    `;
+    return this.apollo.use('analytics')
+      .mutate({ mutation: UPDATE_BUDGET, variables: category })
+      .pipe(map(() => void 0));
   }
 
-
-  addExpense(expense: Omit<Expense, 'id'>): Observable<Expense> {
-    const newExpense: Expense = { ...expense, id: Date.now() };
-    this.expenses.push(newExpense);
-    return of(newExpense);
-  }
-
-  addCategory(category: Omit<BudgetCategory, 'id' | 'currentSpending'>): Observable<BudgetCategory> {
-    const newCategory: BudgetCategory = {
-      ...category,
-      id: Date.now(),
-      currentSpending: 0
-    };
-    this.categories.push(newCategory);
-    return of(newCategory);
+  deleteCategory(categoryId: number): Observable<void> {
+    const DELETE_BUDGET = gql`
+      mutation DeleteBudget($id: ID!) {
+        deleteBudget(id: $id)
+      }
+    `;
+    return this.apollo.use('analytics')
+      .mutate({ mutation: DELETE_BUDGET, variables: { id: categoryId } })
+      .pipe(map(() => void 0));
   }
 
   getBudgetAlerts(): Observable<BudgetAlert[]> {
     return of(this.alerts);
   }
 
-  updateBudgetCategory(category: BudgetCategory): Observable<void> {
-    const index = this.categories.findIndex(c => c.id === category.id);
-    if (index !== -1) this.categories[index] = category;
-    return of();
-  }
-
-  deleteCategory(categoryId: number): Observable<void> {
-    this.categories = this.categories.filter(c => c.id !== categoryId);
-    return of();
-  }
 
   getExpenses(startDate?: Date, endDate?: Date): Observable<Expense[]> {
-    return of(this.expenses.filter(e => {
-      if (!startDate || !endDate) return true;
-      return e.date >= startDate && e.date <= endDate;
-    }));
+    const GET_EXPENSES = gql`
+      query GetExpensesForDates($startDate: String, $endDate: String) {
+        expenses(startDate: $startDate, endDate: $endDate) {
+          id
+          date
+          amount
+          description
+          categoryId
+          accountId
+          isAutomatic
+        }
+      }
+    `;
+    return this.apollo.use('analytics')
+      .query<{ expenses: Expense[] }>({
+        query: GET_EXPENSES,
+        variables: { startDate: startDate?.toISOString(), endDate: endDate?.toISOString() },
+        fetchPolicy: 'network-only'
+      })
+      .pipe(map(result => result.data!.expenses));
+  }
+
+  addExpense(expense: Omit<Expense, 'id'>): Observable<Expense> {
+    const CREATE_EXPENSE = gql`
+      mutation CreateExpense(
+        $date: String!, $amount: Float!, $description: String!,
+        $categoryId: ID!, $accountId: ID!, $isAutomatic: Boolean!
+      ) {
+        createExpense(
+          date: $date,
+          amount: $amount,
+          description: $description,
+          categoryId: $categoryId,
+          accountId: $accountId,
+          isAutomatic: $isAutomatic
+        ) {
+          id
+          date
+          amount
+          description
+          categoryId
+          accountId
+          isAutomatic
+        }
+      }
+    `;
+    return this.apollo.use('analytics')
+      .mutate<{ createExpense: Expense }>({ mutation: CREATE_EXPENSE, variables: { ...expense, date: expense.date || new Date().toISOString() } })
+      .pipe(map(result => result.data!.createExpense));
+  }
+
+  updateExpense(id: number, expense: Partial<Expense>): Observable<Expense> {
+    const UPDATE_EXPENSE = gql`
+      mutation UpdateExpense(
+        $id: ID!, $amount: Float!, $description: String!,
+        $categoryId: ID!, $accountId: ID!, $isAutomatic: Boolean!
+      ) {
+        updateExpense(
+          id: $id,
+          amount: $amount,
+          description: $description,
+          categoryId: $categoryId,
+          accountId: $accountId,
+          isAutomatic: $isAutomatic
+        ) {
+          id
+          date
+          amount
+          description
+          categoryId
+          accountId
+          isAutomatic
+        }
+      }
+    `;
+    return this.apollo.use('analytics')
+      .mutate<{ updateExpense: Expense }>({ mutation: UPDATE_EXPENSE, variables: { id, ...expense } })
+      .pipe(map(result => result.data!.updateExpense));
+  }
+
+  deleteExpense(id: number): Observable<void> {
+    const DELETE_EXPENSE = gql`
+      mutation DeleteExpense($id: ID!) {
+        deleteExpense(id: $id)
+      }
+    `;
+    return this.apollo.use('analytics')
+      .mutate({ mutation: DELETE_EXPENSE, variables: { id } })
+      .pipe(map(() => void 0));
   }
 
   checkBudgetOverages(): Observable<BudgetCategory[]> {
@@ -123,6 +241,25 @@ export class BudgetService {
       });
 
     return of(monthly);
+  }
+
+  addCategory(category: Omit<BudgetCategory, 'id' | 'currentSpending'>): Observable<BudgetCategory> {
+    const CREATE_BUDGET = gql`
+      mutation CreateBudget($name: String!, $icon: String, $color: String, $budgetLimit: Float!, $clientId: ID!) {
+        createBudget(name: $name, icon: $icon, color: $color, budgetLimit: $budgetLimit, clientId: $clientId) {
+          id
+          name
+          icon
+          color
+          budgetLimit
+          currentSpending
+          clientId
+        }
+      }
+    `;
+    return this.apollo.use('analytics')
+      .mutate<{ createBudget: BudgetCategory }>({ mutation: CREATE_BUDGET, variables: category })
+      .pipe(map(result => result.data!.createBudget));
   }
 
 }

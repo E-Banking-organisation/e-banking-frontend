@@ -5,6 +5,8 @@ export interface BudgetCategory {
   color: string;
   budgetLimit: number;
   currentSpending: number;
+  clientId?: number;
+
 }
 
 export interface Expense {
@@ -20,7 +22,7 @@ export interface Expense {
 export interface BudgetAlert {
   id: number;
   categoryId: number;
-  threshold: number; // pourcentage du budget
+  threshold: number;
   message: string;
   isActive: boolean;
 }

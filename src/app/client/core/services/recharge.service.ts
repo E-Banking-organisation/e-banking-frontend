@@ -1,78 +1,174 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
+import {forkJoin, Observable, of, switchMap} from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Apollo, gql } from 'apollo-angular';
 import { Recharge, Operator } from '../models/Recharge.model';
+import { AuthService } from '../../../auth/services/auth.service';
 import {AccountService} from './account.service';
-import {AuthService} from '../../../auth/services/auth.service';
-
 
 @Injectable({
   providedIn: 'root'
 })
 export class RechargeService {
 
-  private operators: Operator[] = [
-    { id: 1, name: 'Orange', logo: '', type: 'mobile', category: 'telecom', url: '' },
-    { id: 2, name: 'Inwi', logo: '', type: 'mobile', category: 'telecom', url: '' }
-  ];
-
-  private recharges: Recharge[] = [];
-
   predefinedAmounts: number[] = [5, 10, 20, 30, 50];
 
-  constructor(private accountService: AccountService, private authService: AuthService) {}
+  constructor(
+    private accountservice: AccountService,
+    private authService: AuthService,
+    private apollo: Apollo
+  ) {}
 
   getOperators(): Observable<Operator[]> {
-    return of(this.operators);
-  }
-
-  getRecharges(): Observable<Recharge[]> {
-    return of(this.recharges);
-  }
-
-  processMobileRecharge(operatorId: number, phoneNumber: string, amount: number, accountId: number): Observable<boolean> {
-    const account = this.accountService['accounts'].find(a => a.id === accountId);
-    if (!account || account.balance < amount) return of(false);
-
-    account.balance -= amount;
-    this.recharges.push({
-      id: this.recharges.length + 1,
-      date: new Date(),
-      operatorId,
-      phoneNumber,
-      accountId,
-      amount,
-      status: 'Confirmé'
-    } as Recharge);
-
-    return of(true);
-  }
-
-  processServiceRecharge(operatorId: number, reference: string, amount: number, accountId: number): Observable<boolean> {
-    return this.processMobileRecharge(operatorId, reference, amount, accountId);
+    const QUERY = gql`
+      query {
+        operatorsMobile {
+          id
+          identifiant
+          name
+          logo
+          type
+          url
+          category
+        }
+      }
+    `;
+    return this.apollo.use('analytics')
+      .query<{ operatorsMobile: Operator[] }>({ query: QUERY, fetchPolicy: 'network-only' })
+      .pipe(map(res => res.data!.operatorsMobile));
   }
 
   getServices(): Observable<Operator[]> {
-    return this.getOperators();
+    const QUERY = gql`
+      query {
+        operatorsService {
+          id
+          identifiant
+          name
+          logo
+          type
+          url
+          category
+        }
+      }
+    `;
+    return this.apollo.use('analytics')
+      .query<{ operatorsService: Operator[] }>({ query: QUERY, fetchPolicy: 'network-only' })
+      .pipe(map(res => res.data!.operatorsService));
   }
 
   getServiceCategories(): Observable<string[]> {
-    return of(['telecom', 'eau', 'électricité']);
+    return this.getServices().pipe(
+      map(operators => Array.from(new Set(operators.map(op => op.category || 'Autre'))))
+    );
   }
 
-  validateMobileRecharge(operatorId: number, phone: string, amount: number, accountId: number): Observable<boolean> {
-    const account = this.accountService['accounts'].find(a => a.id === accountId);
+  getRecharges(): Observable<Recharge[]> {
+    return this.accountservice.accounts$.pipe(
+        map(accounts => accounts.map(a => a.id)),
 
-    const isValid = !!(account &&
-      account.balance >= amount &&
-      phone &&
-      phone.length > 0 &&
-      amount > 0);
+        switchMap(accountIds => {
+          if (accountIds.length === 0) {
+            return of([]);
+          }
 
-    return of(isValid);
+          const queries = accountIds.map(accountId => {
+            const QUERY = gql`
+              query GetRecharges($accountId: ID!) {
+                recharges(accountId: $accountId) {
+                  id
+                  operator
+                  phoneNumber
+                  reference
+                  amount
+                  date
+                  account
+                }
+              }
+            `;
+
+            return this.apollo.use('analytics')
+                .query<{ recharges: Recharge[] }>({
+                  query: QUERY,
+                  variables: { accountId },
+                  fetchPolicy: 'network-only'
+                })
+                .pipe(map(res => res.data!.recharges));
+          });
+          return forkJoin(queries).pipe(
+              map(results => results.flat())
+          );
+        })
+    );
   }
 
-  validateServiceRecharge(operatorId: number, reference: string, amount: number, accountId: number): Observable<boolean> {
-    return this.processServiceRecharge(operatorId, reference, amount, accountId);
+
+
+  processMobileRecharge(operatorId: number, phoneNumber: string, amount: number, accountId: number): Observable<boolean> {
+    return this.accountservice.accounts$.pipe(
+      map(accounts => accounts.find(a => a.id === accountId)),
+      switchMap(account => {
+        if (!account || account.solde < amount) {
+          return of(false);
+        }
+
+        const MUTATION = gql`
+          mutation CreateRecharge($operator: ID!, $phoneNumber: String!, $amount: Float!, $account: ID!) {
+            createRecharge(operator: $operator, phoneNumber: $phoneNumber, amount: $amount, account: $account) {
+              id
+            }
+          }
+        `;
+
+        return this.apollo.use('analytics')
+          .mutate({
+            mutation: MUTATION,
+            variables: { operator: operatorId, phoneNumber, amount, account: accountId }
+          })
+          .pipe(
+            map(() => true)
+          );
+      })
+    );
   }
 
+
+  processServiceRecharge(operatorId: number, reference: string, amount: number, accountId: number): Observable<boolean> {
+    // Reuse processMobileRecharge pour les services
+    return this.processMobileRecharge(operatorId, reference, amount, accountId);
+  }
+
+
+    validateMobileRecharge(
+        operatorId: number,
+        phone: string,
+        amount: number,
+        accountId: number
+    ): Observable<boolean> {
+        return this.accountservice.accounts$.pipe(
+            map(accounts => {
+                const account = accounts.find(a => a.id === accountId);
+                const isPhoneValid = !!phone && /^[0-9]{10}$/.test(phone);
+                const isAmountValid = amount > 0;
+                const isAccountValid = !!account && account.solde >= amount;
+                const isOperatorValid = operatorId > 0;
+                return isPhoneValid && isAmountValid && isAccountValid && isOperatorValid;
+            })
+        );
+    }
+
+
+
+    validateServiceRecharge(operatorId: number, reference: string, amount: number, accountId: number): Observable<boolean> {
+      return this.accountservice.accounts$.pipe(
+          map(accounts => {
+            const account = accounts.find(a => a.id === accountId);
+            const isRefValid = reference.length>0;
+            const isAmountValid = amount > 0;
+            const isAccountValid = !!account && account.solde >= amount;
+            const isOperatorValid = operatorId > 0;
+            return isRefValid && isAmountValid && isAccountValid && isOperatorValid;
+          })
+      );
+    }
 }

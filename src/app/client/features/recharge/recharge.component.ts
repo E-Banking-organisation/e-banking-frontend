@@ -38,6 +38,8 @@ export class RechargeComponent implements OnInit {
   // Formulaires
   mobileRechargeForm = { operatorId: 0, phoneNumber: '', amount: 0, accountId: 1 };
   serviceRechargeForm = { operatorId: 0, reference: '', amount: 0, accountId: 1 };
+  isMobileRechargeValid = false;
+  isServiceRechargeValid = false;
 
   // Filtres
   selectedCategory: string = '';
@@ -51,7 +53,10 @@ export class RechargeComponent implements OnInit {
     // Chargement des données
     this.rechargeService.getOperators().subscribe(data => this.operators = data);
     this.rechargeService.getServices().subscribe(data => this.services = data);
-    this.rechargeService.getRecharges().subscribe(data => this.recharges = data);
+    this.rechargeService.getRecharges().subscribe(data => {
+      this.recharges = data;
+      console.log('Toutes les recharges :', this.recharges);
+    });
     this.accountService.getAccounts().subscribe(data => this.accounts = data);
     this.rechargeService.getServiceCategories().subscribe(data => this.categories = data);
     this.predefinedAmounts = this.rechargeService.predefinedAmounts;
@@ -105,6 +110,16 @@ export class RechargeComponent implements OnInit {
       } else {
         alert('Solde insuffisant ou compte invalide');
       }
+    });
+  }
+  updateMobileValidation(): void {
+    this.rechargeService.validateMobileRecharge(
+        this.mobileRechargeForm.operatorId,
+        this.mobileRechargeForm.phoneNumber,
+        this.mobileRechargeForm.amount,
+        this.mobileRechargeForm.accountId
+    ).subscribe(result => {
+      this.isMobileRechargeValid = result;
     });
   }
 
@@ -172,6 +187,6 @@ export class RechargeComponent implements OnInit {
 
   getAccountLabel(id: number): string {
     const account = this.accounts.find(a => a.id === id);
-    return account ? `${account.type.toLowerCase()} ` : 'Inconnu';
+    return account ? `${account.typeCompte.toLowerCase()} ` : 'Inconnu';
   }
 }

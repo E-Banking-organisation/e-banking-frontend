@@ -43,6 +43,8 @@ export const appConfig: ApplicationConfig = {
         }
       };
     }),
+
+
     // Clients Apollo nommés (crypto et ai)
     {
       provide: APOLLO_NAMED_OPTIONS,
@@ -59,6 +61,15 @@ export const appConfig: ApplicationConfig = {
           },
           ai: {
             link: httpLink.create({ uri: environment.aiUrl }) as unknown as ApolloLink,
+            cache: new InMemoryCache(),
+            defaultOptions: {
+              watchQuery: { fetchPolicy: 'network-only', errorPolicy: 'all' },
+              query: { fetchPolicy: 'network-only', errorPolicy: 'all' },
+              mutate: { errorPolicy: 'all' }
+            }
+          },
+          analytics: {
+            link: httpLink.create({ uri: environment.graphqlUrl }) as unknown as ApolloLink,
             cache: new InMemoryCache(),
             defaultOptions: {
               watchQuery: { fetchPolicy: 'network-only', errorPolicy: 'all' },
