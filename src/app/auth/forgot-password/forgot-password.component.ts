@@ -71,8 +71,12 @@ export class ForgotPasswordComponent implements OnInit {
       }
 
       this.loading = true;
-      this.authService.resetPassword(this.token, this.r['password'].value)
-        .subscribe({
+      this.authService.resetPassword( 
+        this.token!,
+        this.forgotForm.value.email,
+        this.r['password'].value
+      )
+      .subscribe({
           next: (response) => {
             this.successMessage = response.message || 'Mot de passe réinitialisé avec succès.';
             this.loading = false;

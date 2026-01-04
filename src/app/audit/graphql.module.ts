@@ -7,7 +7,7 @@ import { authInterceptor } from '../auth/interceptors/auth.interceptor';
 
 const uri = 'http://localhost:8080/graphql';
 
-export function createApollo(httpLink: HttpLink): ApolloClientOptions<any> {
+export function createApollo(httpLink: HttpLink): ApolloClientOptions {
   const http = httpLink.create({ uri });
 
   return {

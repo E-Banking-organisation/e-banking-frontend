@@ -3,7 +3,7 @@
     <div class="auth-header">
       <h2>E-Banking App</h2>
       <p *ngIf="!show2FA">Connectez-vous à votre compte</p>
-      <p *ngIf="show2FA">Entrez le code envoyé à {{ phoneNumber }}</p>
+     <!--<p *ngIf="show2FA">Entrez le code envoyé à {{ phoneNumber }}</p>-->
     </div>
 
     <div class="auth-body">
@@ -58,7 +58,7 @@
       </form>
 
       <!-- 2FA Form -->
-      <form *ngIf="show2FA" [formGroup]="twoFaForm" (ngSubmit)="onVerifyCode()">
+      <!--<form *ngIf="show2FA" [formGroup]="twoFaForm" (ngSubmit)="onVerifyCode()">
         <div class="form-group">
           <label for="code">Code de vérification</label>
           <input
@@ -85,7 +85,7 @@
         <div class="forgot-password">
           <a (click)="show2FA = false">Retour à la connexion</a>
         </div>
-      </form>
+      </form>-->
     </div>
   </div>
 </div>
