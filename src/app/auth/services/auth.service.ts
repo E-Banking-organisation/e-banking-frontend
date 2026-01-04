@@ -271,4 +271,10 @@ export class AuthService {
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
   }
+
+  getCurrentUserId(): string | null {
+    const user = this.currentUserSubject.value;
+    return user?.id ?? null;
+  }
+
 }
