@@ -57,15 +57,16 @@ export class AccountService {
     `;
     return this.apollo.query<{ accounts: Account[] }>({
       query: GET_ACCOUNTS,
-      variables: { clientId: 6 },
+      variables: { clientId : 6 },
       fetchPolicy: 'network-only'
     }).pipe(
-      map(res => res.data!.accounts),
-      map(accounts => {
+      map(res => {
+        const accounts = res.data?.accounts ?? [];
         this.accountsSubject.next(accounts);
         return accounts;
       })
     );
+
   }
 
 

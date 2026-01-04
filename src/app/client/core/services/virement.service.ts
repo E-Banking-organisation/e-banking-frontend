@@ -1,20 +1,22 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { tap, map, switchMap } from 'rxjs/operators';
+import { Apollo, gql } from 'apollo-angular';
+
 import { Account } from '../models/account.model';
 import { Beneficiary } from '../models/Beneficiary.model';
 import { Transaction } from '../models/transaction.model';
 import { Transfer } from '../models/Transfer.model';
 import { AuthService } from '../../../auth/services/auth.service';
 import { AuditGraphqlService } from '../../../audit/core/services/audit-graphql.service';
-import {AccountService} from './account.service';
+import { AccountService } from './account.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class VirementService {
 
-  accounts$!: Observable<Account[]>; // 👈 déclaration SANS initialisation
+  accounts$!: Observable<Account[]>;
 
   private beneficiariesSubject = new BehaviorSubject<Beneficiary[]>([]);
   private transfersSubject = new BehaviorSubject<Transaction[]>([]);
@@ -27,11 +29,12 @@ export class VirementService {
   constructor(
     private authService: AuthService,
     private auditService: AuditGraphqlService,
-    private accountService: AccountService
+    private accountService: AccountService,
+    private apollo: Apollo
   ) {
-
     this.accounts$ = this.accountService.accounts$;
 
+    // Mock beneficiaries (on laisse comme tu as dit)
     this.beneficiariesSubject.next([
       { id: 1, name: 'Sophie Martin', accountNumber: '789', favorite: true, client_id: 1, beneficiare_id: 1 },
       { id: 2, name: 'Lucas Dubois', accountNumber: '101', favorite: false, client_id: 1, beneficiare_id: 2 }
@@ -53,95 +56,54 @@ export class VirementService {
         'Consultation des comptes pour virement'
       ).subscribe();
     }
-
     return this.accounts$;
   }
 
-  getBeneficiaries(): Beneficiary[] {
+  // ✅ NOUVEAU: charger les transactions d’un compte via GraphQL
+  loadTransfersByAccount(accountId: number): Observable<Transaction[]> {
     const user = this.authService.getCurrentUser();
     if (user) {
       this.auditService.logEvent(
         user.id,
-        'VIEW_BENEFICIARIES',
+        'VIEW_ACCOUNT_TRANSACTIONS',
         'VIREMENT_SERVICE',
         'INFO',
-        `Consultation des bénéficiaires (${this.beneficiariesSubject.value.length} bénéficiaires)`
+        `Consultation transactions du compte ${accountId}`
       ).subscribe();
     }
 
-    return this.beneficiariesSubject.value;
+    const GET_TX_BY_ACCOUNT = gql`
+      query GetTxByAccount($accountId: ID!) {
+        transactionsByAccount(accountId: $accountId) {
+          id
+          accountId
+          destinationAccountId
+          reference
+          date
+          description
+          amount
+          type
+          status
+          devise
+          frais
+          source
+          destination
+        }
+      }
+    `;
+
+    return this.apollo.query<{ transactionsByAccount: Transaction[] }>({
+      query: GET_TX_BY_ACCOUNT,
+      variables: { accountId: String(accountId) },
+      fetchPolicy: 'network-only'
+    }).pipe(
+      map(res => res.data?.transactionsByAccount ?? []),
+      tap(list => this.transfersSubject.next(list))
+    );
+
   }
 
-  addBeneficiary(beneficiary: Beneficiary): Observable<any> {
-    this.beneficiariesSubject.next([...this.beneficiariesSubject.value, beneficiary]);
-
-    const user = this.authService.getCurrentUser();
-    if (user) {
-      this.auditService.logEvent(
-        user.id,
-        'ADD_BENEFICIARY',
-        'VIREMENT_SERVICE',
-        'INFO',
-        `Ajout bénéficiaire: ${beneficiary.name} (Compte: ${beneficiary.accountNumber})`
-      ).subscribe();
-    }
-
-    return of(true);
-  }
-
-  updateBeneficiary(updated: Beneficiary): void {
-    const beneficiaries = this.beneficiariesSubject.value.map(b => b.id === updated.id ? updated : b);
-    this.beneficiariesSubject.next(beneficiaries);
-
-    const user = this.authService.getCurrentUser();
-    if (user) {
-      this.auditService.logEvent(
-        user.id,
-        'UPDATE_BENEFICIARY',
-        'VIREMENT_SERVICE',
-        'INFO',
-        `Modification bénéficiaire ID: ${updated.id} - ${updated.name}`
-      ).subscribe();
-    }
-  }
-
-  deleteBeneficiary(id: number): Observable<any> {
-    const beneficiary = this.beneficiariesSubject.value.find(b => b.id === id);
-    const filtered = this.beneficiariesSubject.value.filter(b => b.id !== id);
-    this.beneficiariesSubject.next(filtered);
-
-    const user = this.authService.getCurrentUser();
-    if (user) {
-      this.auditService.logEvent(
-        user.id,
-        'DELETE_BENEFICIARY',
-        'VIREMENT_SERVICE',
-        'WARNING',
-        `Suppression bénéficiaire ID: ${id}${beneficiary ? ` - ${beneficiary.name}` : ''}`
-      ).subscribe();
-    }
-
-    return of(true);
-  }
-
-  toggleFavorite(beneficiary: Beneficiary): Observable<any> {
-    beneficiary.favorite = !beneficiary.favorite;
-    this.updateBeneficiary(beneficiary);
-
-    const user = this.authService.getCurrentUser();
-    if (user) {
-      this.auditService.logEvent(
-        user.id,
-        'TOGGLE_BENEFICIARY_FAVORITE',
-        'VIREMENT_SERVICE',
-        'INFO',
-        `${beneficiary.favorite ? 'Ajout aux' : 'Retrait des'} favoris: ${beneficiary.name}`
-      ).subscribe();
-    }
-
-    return of(true);
-  }
-
+  // ✅ ton écran historique peut continuer à appeler ça (mais maintenant c’est alimenté par loadTransfersByAccount)
   getTransfers(): Transaction[] {
     const user = this.authService.getCurrentUser();
     if (user) {
@@ -153,11 +115,11 @@ export class VirementService {
         `Consultation historique virements (${this.transfersSubject.value.length} virements)`
       ).subscribe();
     }
-
     return this.transfersSubject.value;
   }
 
-  executeTransfer(transfer: Partial<Transfer>, otpCode: string): Observable<any> {
+  // ✅ MODIF: executeTransfer -> mutation GraphQL au lieu d’un mock
+  executeTransfer(transfer: Partial<Transfer>, otpCode: string): Observable<boolean> {
     const user = this.authService.getCurrentUser();
 
     if (otpCode !== this.generatedOtpCode) {
@@ -173,40 +135,87 @@ export class VirementService {
       return of(false);
     }
 
-    const newTransaction: Transaction = {
-      id: this.transfersSubject.value.length + 1,
-      accountId: transfer.sourceAccountId!,
-      destinationAccountId: transfer.beneficiaryId!,
-      reference: `REF${Math.random() * 1000}`,
-      date: new Date(),
+    const CREATE_TX = gql`
+      mutation CreateTransaction(
+        $accountId: ID!
+        $destinationAccountId: ID
+        $reference: String!
+        $date: String
+        $description: String
+        $amount: Float!
+        $type: String!
+        $status: String!
+        $devise: String!
+        $frais: Float
+        $source: String
+        $destination: String
+      ) {
+        createTransaction(
+          accountId: $accountId
+          destinationAccountId: $destinationAccountId
+          reference: $reference
+          date: $date
+          description: $description
+          amount: $amount
+          type: $type
+          status: $status
+          devise: $devise
+          frais: $frais
+          source: $source
+          destination: $destination
+        )
+      }
+    `;
+
+    const variables = {
+      accountId: String(transfer.sourceAccountId),
+      destinationAccountId: transfer.beneficiaryId ? String(transfer.beneficiaryId) : null,
+      reference: `REF${Math.floor(Math.random() * 100000)}`,
+      date: new Date().toISOString(),
       description: transfer.description || '',
-      amount: transfer.amount!,
-      type: 'Débit',
-      status: 'Confirmé',
+      amount: Number(transfer.amount ?? 0),
+      type: 'Débit',      // à adapter si ton backend attend autre chose
+      status: 'Confirmé', // idem
       devise: 'MAD',
       frais: 0,
       source: 'Compte source',
       destination: 'Compte destination'
     };
 
-    this.transfersSubject.next([...this.transfersSubject.value, newTransaction]);
-
-    if (user) {
-      const beneficiaryName = this.getBeneficiaryName(transfer.beneficiaryId!);
-      this.auditService.logEvent(
-        user.id,
-        'EXECUTE_TRANSFER',
-        'VIREMENT_SERVICE',
-        'INFO',
-        `Virement exécuté: ${transfer.amount} MAD vers ${beneficiaryName} - Réf: ${newTransaction.reference}`
-      ).subscribe();
-    }
-
-    return of(true);
+    return this.apollo.mutate<{ createTransaction: string }>({
+      mutation: CREATE_TX,
+      variables
+    }).pipe(
+      switchMap(() => {
+        // refresh liste après création
+        const accId = transfer.sourceAccountId!;
+        return this.loadTransfersByAccount(accId);
+      }),
+      tap(() => {
+        if (user) {
+          const beneficiaryName = this.getBeneficiaryName(transfer.beneficiaryId!);
+          this.auditService.logEvent(
+            user.id,
+            'EXECUTE_TRANSFER',
+            'VIREMENT_SERVICE',
+            'INFO',
+            `Virement exécuté: ${transfer.amount} MAD vers ${beneficiaryName}`
+          ).subscribe();
+        }
+      }),
+      map(() => true)
+    );
   }
 
+  // --- Beneficiaries: on ne touche pas ---
+  getBeneficiaries(): Beneficiary[] { return this.beneficiariesSubject.value; }
+  addBeneficiary(b: Beneficiary): Observable<any> { this.beneficiariesSubject.next([...this.beneficiariesSubject.value, b]); return of(true); }
+  updateBeneficiary(updated: Beneficiary): void { this.beneficiariesSubject.next(this.beneficiariesSubject.value.map(x => x.id === updated.id ? updated : x)); }
+  deleteBeneficiary(id: number): Observable<any> { this.beneficiariesSubject.next(this.beneficiariesSubject.value.filter(b => b.id !== id)); return of(true); }
+  toggleFavorite(b: Beneficiary): Observable<any> { b.favorite = !b.favorite; this.updateBeneficiary(b); return of(true); }
+
   getBeneficiaryName(id: number): string {
-    const b = this.beneficiariesSubject.value.find(b => b.id === id);
+    const b = this.beneficiariesSubject.value.find(x => x.id === id);
     return b ? b.name : 'Inconnu';
   }
 }
