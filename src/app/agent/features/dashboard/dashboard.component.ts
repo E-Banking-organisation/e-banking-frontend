@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ClientService } from '../../core/services/client.service';
-import { SubscriberService } from '../../core/services/subscriber.service';
+// import { SubscriberService } from '../../core/services/subscriber.service';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -19,7 +19,7 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private clientService: ClientService,
-    private subscriberService: SubscriberService
+    // private subscriberService: SubscriberService
   ) {}
 
   ngOnInit(): void {

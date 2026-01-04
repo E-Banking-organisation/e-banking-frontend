@@ -55,16 +55,6 @@ export class TransactionService {
     return this.transactions$.pipe(delay(500));
   }
 
-  getTransactionsByAgentId(agentId: string): Observable<AgentTransaction[]> {
-    const filteredTransactions = this.transactions.filter(t => t.agentId === agentId);
-    return of(filteredTransactions).pipe(delay(300));
-  }
-
-  getTransactionsByClientId(clientId: string): Observable<AgentTransaction[]> {
-    const filteredTransactions = this.transactions.filter(t => t.clientId === clientId);
-    return of(filteredTransactions).pipe(delay(300));
-  }
-
   getTransactionById(id: string): Observable<AgentTransaction | undefined> {
     const transaction = this.transactions.find(t => t.id === id);
     return of(transaction).pipe(delay(300));
@@ -83,18 +73,4 @@ export class TransactionService {
     return of(newTransaction).pipe(delay(300));
   }
 
-  updateTransactionStatus(id: string, status: 'pending' | 'completed' | 'failed'): Observable<AgentTransaction | undefined> {
-    let updatedTransaction: AgentTransaction | undefined;
-    
-    this.transactions = this.transactions.map(t => {
-      if (t.id === id) {
-        updatedTransaction = { ...t, status: status };
-        return updatedTransaction;
-      }
-      return t;
-    });
-    
-    this.transactionsSubject.next(this.transactions);
-    return of(updatedTransaction).pipe(delay(300));
-  }
 }

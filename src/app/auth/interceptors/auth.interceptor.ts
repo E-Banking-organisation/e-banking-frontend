@@ -10,7 +10,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     '/api/auth/login',
     '/api/auth/verify-code',
     '/api/auth/forgot-password',
-    '/api/auth/reset-password'
+    '/api/auth/reset-password',
+    '/api/agents/**'
   ];
 
   let modifiedReq = req;
