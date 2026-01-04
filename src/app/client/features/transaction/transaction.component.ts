@@ -56,7 +56,7 @@ export class TransactionComponent implements OnChanges {
       return;
     }
 
-    this.transactionService.getLatestTransactions(user.id).subscribe({
+    this.transactionService.getLatestTransactions().subscribe({
       next: (transactions) => {
         this.latestTransactions = transactions;
       },

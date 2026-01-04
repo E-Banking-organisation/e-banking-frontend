@@ -64,7 +64,8 @@ export class BudgetComponent implements OnInit, OnDestroy {
   newCategory: Omit<BudgetCategory, 'id' | 'currentSpending'> = {
     name: '',
     color: '#FFB6C1',
-    budgetLimit: 0
+    budgetLimit: 0,
+    clientId: 6 //id client here
   };
 
 // Palette de couleurs prédéfinie
@@ -233,12 +234,12 @@ export class BudgetComponent implements OnInit, OnDestroy {
   }
 
   addExpense(): void {
+    this.newExpense.accountId = 1;
     if (this.newExpense.amount <= 0 || !this.newExpense.categoryId || !this.newExpense.accountId) {
       return;
     }
 
     this.budgetService.addExpense(this.newExpense).subscribe(expense => {
-      this.expenses.push(expense);
       this.newExpense = {
         date: new Date(),
         amount: 0,
@@ -285,6 +286,7 @@ export class BudgetComponent implements OnInit, OnDestroy {
       });
     } else {
       // Mode ajout
+      this.newCategory.clientId = 6;
       this.budgetService.addCategory(this.newCategory).subscribe(() => {
         this.resetCategoryForm();
         this.loadData();
@@ -330,7 +332,8 @@ export class BudgetComponent implements OnInit, OnDestroy {
     this.newCategory = {
       name: '',
       color: this.colorPalette[0],
-      budgetLimit: 0
+      budgetLimit: 0,
+      clientId: 6
     };
   }
 

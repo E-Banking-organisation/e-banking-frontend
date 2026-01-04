@@ -4,98 +4,80 @@ import { tap } from 'rxjs/operators';
 import { Transaction } from '../models/transaction.model';
 import { AuthService } from '../../../auth/services/auth.service';
 import { AuditGraphqlService } from '../../../audit/core/services/audit-graphql.service';
+import { AccountService } from './account.service';
+import { Account } from '../models/account.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TransactionService {
 
-  private transactions: Transaction[] = [
-    {
-      id: 1,
-      accountId: 1,
-      destinationAccountId: 2,
-      reference: 'REF001',
-      date: new Date(),
-      description: 'Paiement Facture',
-      amount: 200,
-      type: 'Débit',
-      status: 'Confirmé',
-      devise: 'MAD',
-      frais: 0,
-      destination: 'Account 2',
-      source: 'Account 1'
-    },
-    {
-      id: 2,
-      accountId: 2,
-      destinationAccountId: 1,
-      reference: 'REF002',
-      date: new Date(),
-      description: 'Virement reçu',
-      amount: 300,
-      type: 'Crédit',
-      status: 'Confirmé',
-      devise: 'MAD',
-      frais: 0,
-      destination: 'Account 1',
-      source: 'Account 2'
-    }
-  ];
+  private transactions: Transaction[] = [];
 
   constructor(
     private authService: AuthService,
-    private auditService: AuditGraphqlService
-  ) {}
+    private auditService: AuditGraphqlService,
+    private accountService: AccountService
+  ) {
+    this.buildGlobalTransactions();
+  }
 
-  getAllTransactions(): Observable<Transaction[]> {
+  private buildGlobalTransactions(): void {
+    this.accountService.accounts$.subscribe(accounts => {
+
+      const transactionMap = new Map<number, Transaction>();
+
+      accounts.forEach(account => {
+        account.transactions?.forEach(tx => {
+          if (!transactionMap.has(tx.id)) {
+            transactionMap.set(tx.id, tx);
+          }
+        });
+      });
+
+      this.transactions = Array.from(transactionMap.values())
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    });
+  }
+
+
+  gettransactions(): Observable<Transaction[]> {
     const user = this.authService.currentUserValue;
-    if (!user) return throwError(() => new Error('Utilisateur non connecté'));
+    if (!user) {
+      return throwError(() => new Error('Utilisateur non connecté'));
+    }
 
-    this.auditService.logEvent(
-      user.id,
+    this.logAudit(
+      6,
       'VIEW_ALL_TRANSACTIONS',
-      'TRANSACTION_SERVICE',
-      'INFO',
-      `Consultation de toutes les transactions par ${user.email}`
-    ).subscribe();
+      'Consultation de toutes les transactions'
+    );
 
     return of(this.transactions);
   }
 
   getTransactionsByAccountId(accountId: number): Observable<Transaction[]> {
-    const user = this.authService.getCurrentUser();
+    const user = this.authService.currentUserValue;
+
     if (user) {
-      this.auditService.logEvent(
-        user.id,
+      this.logAudit(
+        6,
         'VIEW_ACCOUNT_TRANSACTIONS',
-        'TRANSACTION_SERVICE',
-        'INFO',
-        `Consultation transactions du compte ${accountId}`
-      ).subscribe();
+        `Consultation transactions compte ${accountId}`
+      );
     }
 
-    return of(this.transactions.filter(
-      t => t.accountId === accountId || t.destinationAccountId === accountId
-    ));
+    return of(
+      this.transactions.filter(
+        tx =>
+          tx.accountId === accountId ||
+          tx.destinationAccountId === accountId
+      )
+    );
   }
 
-  getLatestTransactions(clientId: string): Observable<Transaction[]> {
-    const user = this.authService.getCurrentUser();
-    if (user) {
-      this.auditService.logEvent(
-        user.id,
-        'VIEW_LATEST_TRANSACTIONS',
-        'TRANSACTION_SERVICE',
-        'INFO',
-        `Consultation dernières transactions pour client ${clientId}`
-      ).subscribe();
-    }
-
-    return of(this.transactions
-      .sort((a, b) => b.date.getTime() - a.date.getTime())
-      .slice(0, 5)
-    );
+  getLatestTransactions(): Observable<Transaction[]> {
+    return of(this.transactions.slice(0, 5));
   }
 
   filterTransactions(
@@ -106,24 +88,13 @@ export class TransactionService {
     amountMax?: number,
     transactionType?: string
   ): Transaction[] {
-    const user = this.authService.getCurrentUser();
-    if (user) {
-      this.auditService.logEvent(
-        user.id,
-        'FILTER_TRANSACTIONS',
-        'TRANSACTION_SERVICE',
-        'INFO',
-        `Filtrage transactions - Date: ${dateFrom} à ${dateTo}, Montant: ${amountMin}-${amountMax}, Type: ${transactionType}`
-      ).subscribe();
-    }
-
-    return transactions.filter(t => {
-      const tDate = new Date(t.date);
-      return (!dateFrom || tDate >= new Date(dateFrom)) &&
-        (!dateTo || tDate <= new Date(dateTo)) &&
-        (amountMin === undefined || t.amount >= amountMin) &&
-        (amountMax === undefined || t.amount <= amountMax) &&
-        (!transactionType || t.type === transactionType);
+    return transactions.filter(tx => {
+      const d = new Date(tx.date);
+      return (!dateFrom || d >= new Date(dateFrom)) &&
+        (!dateTo || d <= new Date(dateTo)) &&
+        (amountMin == null || tx.amount >= amountMin) &&
+        (amountMax == null || tx.amount <= amountMax) &&
+        (!transactionType || tx.type === transactionType);
     });
   }
 
@@ -132,31 +103,28 @@ export class TransactionService {
     column: string,
     direction: 'asc' | 'desc'
   ): Transaction[] {
-    const user = this.authService.getCurrentUser();
-    if (user) {
-      this.auditService.logEvent(
-        user.id,
-        'SORT_TRANSACTIONS',
-        'TRANSACTION_SERVICE',
-        'INFO',
-        `Tri transactions par ${column} (${direction})`
-      ).subscribe();
-    }
+    const factor = direction === 'asc' ? 1 : -1;
 
-    const modifier = direction === 'asc' ? 1 : -1;
     return [...transactions].sort((a, b) => {
       switch (column) {
         case 'date':
-          return modifier * (new Date(a.date).getTime() - new Date(b.date).getTime());
+          return factor * (a.date.getTime() - b.date.getTime());
         case 'amount':
-          return modifier * (a.amount - b.amount);
-        case 'description':
-          return modifier * a.description.localeCompare(b.description);
+          return factor * (a.amount - b.amount);
         case 'type':
-          return modifier * a.type.localeCompare(b.type);
+          return factor * a.type.localeCompare(b.type);
         default:
           return 0;
       }
     });
+  }
+  private logAudit(userId: number, action: string, message: string): void {
+    this.auditService.logEvent(
+      userId.toString(),
+      action,
+      'TRANSACTION_SERVICE',
+      'INFO',
+      message
+    ).subscribe();
   }
 }

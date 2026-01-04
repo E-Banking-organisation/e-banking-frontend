@@ -30,10 +30,11 @@ export class RechargeService {
   }
 
   processMobileRecharge(operatorId: number, phoneNumber: string, amount: number, accountId: number): Observable<boolean> {
+    // @ts-ignore
     const account = this.accountService['accounts'].find(a => a.id === accountId);
-    if (!account || account.balance < amount) return of(false);
+    if (!account || account.solde < amount) return of(false);
 
-    account.balance -= amount;
+    account.solde -= amount;
     this.recharges.push({
       id: this.recharges.length + 1,
       date: new Date(),
@@ -60,10 +61,11 @@ export class RechargeService {
   }
 
   validateMobileRecharge(operatorId: number, phone: string, amount: number, accountId: number): Observable<boolean> {
+    // @ts-ignore
     const account = this.accountService['accounts'].find(a => a.id === accountId);
 
     const isValid = !!(account &&
-      account.balance >= amount &&
+      account.solde >= amount &&
       phone &&
       phone.length > 0 &&
       amount > 0);
