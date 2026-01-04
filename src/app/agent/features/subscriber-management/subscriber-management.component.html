@@ -1,4 +1,4 @@
-<!-- <div class="subscriber-management-container">
+<div class="subscriber-management-container">
   <div class="header-section">
     <div class="title-section">
       <h1>Gestion des abonnés</h1>
@@ -59,7 +59,7 @@
       </thead>
       <tbody>
       <tr *ngFor="let subscriber of filteredSubscribers">
-        <td data-label="ID">{{ subscriber.id.substring(0, 8) }}</td>
+        <td data-label="ID">{{ subscriber.id?.substring(0, 8) ||'N/A' }}</td>
         <td data-label="Nom">{{ subscriber.firstName }} {{ subscriber.lastName }}</td>
         <td data-label="Email">{{ subscriber.email }}</td>
         <td data-label="Type d'abonnement">
@@ -77,12 +77,12 @@
         <td data-label="Date d'expiration">{{ subscriber.expirationDate | date:'dd/MM/yyyy' }}</td>
         <td data-label="Actions">
           <div class="action-buttons">
-            <button class="view-btn" (click)="viewSubscriber(subscriber.id)">Voir</button>
+            <button class="view-btn" (click)="viewSubscriber(subscriber.id!)">Voir</button>
 
             <button
               *ngIf="subscriber.subscriptionStatus !== 'active'"
               class="activate-btn"
-              (click)="activateSubscription(subscriber.id)"
+              (click)="activateSubscription(subscriber.id!)"
             >
               Activer
             </button>
@@ -90,7 +90,7 @@
             <button
               *ngIf="subscriber.subscriptionStatus === 'active'"
               class="suspend-btn"
-              (click)="suspendSubscription(subscriber.id)"
+              (click)="suspendSubscription(subscriber.id!)"
             >
               Suspendre
             </button>
@@ -229,4 +229,4 @@
       </div>
     </div>
   </div>
-</div> -->
+</div>

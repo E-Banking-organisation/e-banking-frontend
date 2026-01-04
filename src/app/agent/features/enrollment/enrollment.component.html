@@ -1,4 +1,4 @@
-<!-- <div class="enrollment-container">
+<div class="enrollment-container">
   <div class="header">
     <h1>Demandes d'inscription</h1>
     <div class="controls">
@@ -30,19 +30,19 @@
           </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let enrollment of getFilteredEnrollments()">
-          <td data-label="Client">{{ enrollment.client.firstName }} {{ enrollment.client.lastName }}</td>
-          <td data-label="Email">{{ enrollment.client.email }}</td>
-          <td data-label="Date de demande">{{ formatDate(enrollment.dateCreated) }}</td>
-          <td data-label="Statut">
-        <span class="status-badge" [class]="getStatusClass(enrollment.status)">
-          {{ getStatusText(enrollment.status) }}
-        </span>
-          </td>
-          <td data-label="Actions">
-            <button class="btn-view" (click)="viewEnrollmentDetails(enrollment)">Détails</button>
-          </td>
-        </tr>
+          <tr *ngFor="let enrollment of getFilteredEnrollments()">
+            <td data-label="Client">{{ enrollment.client.firstName }} {{ enrollment.client.lastName }}</td>
+            <td data-label="Email">{{ enrollment.client.email }}</td>
+            <td data-label="Date de demande">{{ formatDate(enrollment.dateCreated) }}</td>
+            <td data-label="Statut">
+              <span class="status-badge" [class]="getStatusClass(enrollment.status)">
+                {{ getStatusText(enrollment.status) }}
+              </span>
+            </td>
+            <td data-label="Actions">
+              <button class="btn-view" (click)="viewEnrollmentDetails(enrollment)">Détails</button>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -80,10 +80,6 @@
               <span class="label">ID National:</span>
               <span>{{ selectedEnrollment.client.nationalId || 'N/A' }}</span>
             </div>
-            <div class="info-item">
-              <span class="label">Date de naissance:</span>
-              <span>{{ selectedEnrollment.client.dateOfBirth ? formatDate(selectedEnrollment.client.dateOfBirth) : 'N/A' }}</span>
-            </div>
           </div>
         </div>
 
@@ -120,7 +116,8 @@
         <button class="btn-approve" (click)="approveEnrollment(selectedEnrollment)">Approuver</button>
         <div class="reject-container">
           <input type="text" #rejectionReason placeholder="Raison du rejet...">
-          <button class="btn-reject" (click)="rejectEnrollment(selectedEnrollment, rejectionReason.value)">Rejeter</button>
+          <button class="btn-reject"
+            (click)="rejectEnrollment(selectedEnrollment, rejectionReason.value)">Rejeter</button>
         </div>
       </div>
     </div>
@@ -138,4 +135,4 @@
       <p>Aucune demande d'inscription ne correspond à vos critères.</p>
     </div>
   </ng-template>
-</div> -->
+</div>

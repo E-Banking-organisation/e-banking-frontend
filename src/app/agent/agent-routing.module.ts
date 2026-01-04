@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-// import { DashboardComponent } from './features/dashboard/dashboard.component';
+import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { ClientManagementComponent } from './features/client-management/client-management.component';
-// import { SubscriberManagementComponent } from './features/subscriber-management/subscriber-management.component';
-// import { EnrollmentComponent } from './features/enrollment/enrollment.component';
+import { SubscriberManagementComponent } from './features/subscriber-management/subscriber-management.component';
+import { EnrollmentComponent } from './features/enrollment/enrollment.component';
 import { AgentLayoutComponent } from './layout/agent-layout.component';
 
 const routes: Routes = [
@@ -11,10 +11,10 @@ const routes: Routes = [
     path: '',
     component: AgentLayoutComponent,
     children: [
-      // { path: 'dashboard', component: DashboardComponent },
+      { path: 'dashboard', component: DashboardComponent },
       { path: 'clients', component: ClientManagementComponent },
-      // { path: 'subscribers', component: SubscriberManagementComponent },
-      // { path: 'enrollments', component: EnrollmentComponent },
+      { path: 'subscribers', component: SubscriberManagementComponent },
+      { path: 'enrollments', component: EnrollmentComponent },
 
       {
         path: 'audit-logs',

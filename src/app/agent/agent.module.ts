@@ -4,10 +4,9 @@ import { AgentRoutingModule } from './agent-routing.module';
 import { HttpClientModule } from '@angular/common/http';
 
 // Services
-// import { SubscriberService } from './core/services/subscriber.service';
-import { TransactionService } from './core/services/transaction.service';
+import { SubscriberService } from './core/services/subscriber.service';
 import { ClientService } from './core/services/client.service';
-// import { EnrollmentService } from './core/services/enrollment.service';
+import { EnrollmentService } from './core/services/enrollment.service';
 
 @NgModule({
   declarations: [],
@@ -18,7 +17,6 @@ import { ClientService } from './core/services/client.service';
   ],
   providers: [
     // SubscriberService,
-    TransactionService,
     ClientService
     // EnrollmentService
   ]
