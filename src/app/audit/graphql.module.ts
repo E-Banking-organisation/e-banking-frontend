@@ -7,7 +7,7 @@ import { authInterceptor } from '../auth/interceptors/auth.interceptor';
 import { environment } from '../../environments/environment';
 
 // URL du client par défaut (audit)
-const defaultUri = 'http://localhost:8080/graphql';
+const defaultUri = 'http://localhost:8086/graphql';
 
 
 export function createApollo(httpLink: HttpLink): ApolloClientOptions {
